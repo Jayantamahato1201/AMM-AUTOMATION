@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AMM Automation | Industrial Automation & Engineering Solutions</title>
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    <link rel="apple-touch-icon" href="/logo.jpg" />
+    <meta name="description" content="AMM Automation – Turnkey Industrial Automation, HT/LT Motor Rewinding, Process Instrumentation, LOTO Safety, and Industry 4.0 Solutions." />
+    <meta property="og:title" content="AMM Automation | Innovate. Automate. Control." />
+    <meta property="og:description" content="Industrial Automation & Engineering Solutions: PLC/SCADA, Process Instrumentation, AMR Robotics, HT/LT Motors, and 24/7 Breakdown Support." />
+    <meta property="og:image" content="/logo.jpg" />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content="/logo.jpg" />
+    <script>
+      // Gracefully handle & prevent noisy browser extension errors (e.g. TronLink / crypto wallet content scripts)
+      (function () {
+        function isExtensionError(msg, filename) {
+          var str = String(msg || '') + ' ' + String(filename || '');
+          return (
+            str.indexOf('tronlinkParams') !== -1 ||
+            str.indexOf('trap returned falsish') !== -1 ||
+            str.indexOf('TronWeb') !== -1 ||
+            str.indexOf('ObjectMultiplex') !== -1 ||
+            str.indexOf('MaxListenersExceededWarning') !== -1 ||
+            str.indexOf('contentscript.js') !== -1 ||
+            str.indexOf('injected.js') !== -1
+          );
+        }
+
+        window.addEventListener('error', function (event) {
+          var msg = event && (event.message || (event.error && event.error.message));
+          var filename = event && event.filename;
+          if (isExtensionError(msg, filename)) {
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            if (event.preventDefault) event.preventDefault();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event && event.reason;
+          var msg = (reason && reason.message) || String(reason || '');
+          if (isExtensionError(msg, '')) {
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+        }, true);
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300..900;1,300..900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-50 text-slate-900 antialiased">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

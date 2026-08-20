@@ -1,0 +1,6 @@
+{
+  "name": "AMM Automation",
+  "description": "Industrial Automation, Process Instrumentation, and Smart Industry 4.0 Solutions by AMM Automation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

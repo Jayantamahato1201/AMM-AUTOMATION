@@ -1,0 +1,92 @@
+import React from 'react';
+import {
+  Zap,
+  Cpu,
+  Gauge,
+  ShieldAlert,
+  Bot,
+  Activity,
+  LayoutDashboard,
+  Database,
+  TrendingUp,
+  Smartphone,
+  Flame,
+  Boxes,
+  Building2,
+  Fuel,
+  Stethoscope,
+  Droplets,
+  Utensils,
+  Car,
+  Truck,
+  Settings,
+  Wrench,
+  CheckCircle2,
+  Clock,
+  Award,
+  Phone,
+  Mail,
+  MapPin,
+  HelpCircle,
+  Factory,
+  Radio,
+  Sliders,
+  Sparkles,
+  Layers,
+  ChevronRight,
+  Send,
+  Download,
+  ExternalLink,
+  ShieldCheck,
+  Power
+} from 'lucide-react';
+
+interface IconProps {
+  name: string;
+  className?: string;
+}
+
+export const DynamicIcon: React.FC<IconProps> = ({ name, className = 'w-5 h-5' }) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    Zap: <Zap className={className} />,
+    Cpu: <Cpu className={className} />,
+    Gauge: <Gauge className={className} />,
+    ShieldAlert: <ShieldAlert className={className} />,
+    Bot: <Bot className={className} />,
+    Activity: <Activity className={className} />,
+    LayoutDashboard: <LayoutDashboard className={className} />,
+    Database: <Database className={className} />,
+    TrendingUp: <TrendingUp className={className} />,
+    Smartphone: <Smartphone className={className} />,
+    Flame: <Flame className={className} />,
+    Boxes: <Boxes className={className} />,
+    Building2: <Building2 className={className} />,
+    Fuel: <Fuel className={className} />,
+    Stethoscope: <Stethoscope className={className} />,
+    Droplets: <Droplets className={className} />,
+    Utensils: <Utensils className={className} />,
+    Car: <Car className={className} />,
+    Truck: <Truck className={className} />,
+    Settings: <Settings className={className} />,
+    Wrench: <Wrench className={className} />,
+    CheckCircle2: <CheckCircle2 className={className} />,
+    Clock: <Clock className={className} />,
+    Award: <Award className={className} />,
+    Phone: <Phone className={className} />,
+    Mail: <Mail className={className} />,
+    MapPin: <MapPin className={className} />,
+    Factory: <Factory className={className} />,
+    Radio: <Radio className={className} />,
+    Sliders: <Sliders className={className} />,
+    Sparkles: <Sparkles className={className} />,
+    Layers: <Layers className={className} />,
+    ChevronRight: <ChevronRight className={className} />,
+    Send: <Send className={className} />,
+    Download: <Download className={className} />,
+    ExternalLink: <ExternalLink className={className} />,
+    ShieldCheck: <ShieldCheck className={className} />,
+    Power: <Power className={className} />
+  };
+
+  return iconMap[name] || <Factory className={className} />;
+};
