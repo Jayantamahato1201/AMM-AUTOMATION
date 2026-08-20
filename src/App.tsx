@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Outlet, Link, Navigate } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { ThemeProvider } from './context/ThemeContext.js';
 import { AuthProvider } from './context/AuthContext.js';
 import { DataProvider } from './context/DataContext.js';
@@ -110,6 +111,7 @@ export function App() {
                 <Route path="content" element={<AdminContentPage />} />
               </Route>
             </Routes>
+            <Analytics />
           </BrowserRouter>
         </DataProvider>
       </AuthProvider>
