@@ -15,17 +15,17 @@ export const WhatsAppButton: React.FC = () => {
     <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end group">
       {/* Tooltip Message */}
       {showTooltip && (
-        <div className="mb-2 bg-slate-900 text-white text-xs py-2 px-3 rounded-lg shadow-xl border border-slate-700 flex items-center gap-2 max-w-xs animate-bounce-subtle">
+        <div className="mb-2 bg-white dark:bg-slate-900 text-slate-900 dark:text-white text-xs py-2 px-3 rounded-lg shadow-xl border border-slate-200 dark:border-slate-700 flex items-center gap-2 max-w-xs animate-bounce-subtle">
           <div>
-            <p className="font-semibold text-emerald-400">Need immediate assistance?</p>
-            <p className="text-[11px] text-slate-300">Chat with an AMM engineer on WhatsApp</p>
+            <p className="font-semibold text-emerald-600 dark:text-emerald-400">Need immediate assistance?</p>
+            <p className="text-[11px] text-slate-600 dark:text-slate-300">Chat with an AMM engineer on WhatsApp</p>
           </div>
           <button
             onClick={(e) => {
               e.stopPropagation();
               setShowTooltip(false);
             }}
-            className="text-slate-400 hover:text-white p-0.5"
+            className="text-slate-400 hover:text-slate-700 dark:hover:text-white p-0.5"
             aria-label="Close tooltip"
           >
             <X className="w-3.5 h-3.5" />

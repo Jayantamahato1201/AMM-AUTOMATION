@@ -1,35 +1,83 @@
-import { ServiceItem, IndustryItem, ProjectItem, WebsiteContent } from '../types.js';
+import {
+  ServiceItem,
+  IndustryItem,
+  PartnerCompanyItem,
+  WebsiteContent,
+  EnquiryItem,
+  QuoteRequestItem,
+  TestimonialItem
+} from '../types.js';
 
 export const initialWebsiteContent: WebsiteContent = {
   companyName: 'AMM Automation',
-  companyDescription: 'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions.',
+  companyDescription:
+    'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions.',
   tagline: 'Innovate. Automate. Control.',
   heroHeading: 'Industrial Automation & Smart Solutions',
   heroSubheading: 'Smart Solutions. Safer Operations. Stronger Tomorrow.',
-  heroDescription: 'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions. We specialize in delivering advanced, cost-effective, and plant-ready solutions designed to improve operational efficiency, safety, productivity, and reliability.',
-  aboutIntro: 'AMM Automation is dedicated to engineering excellence, offering complete turnkey automation, process instrumentation, electrical engineering, and smart manufacturing integration for heavy industries and modern enterprises.',
-  aboutMission: 'To empower industrial operations with resilient, high-precision automation and intelligent digital monitoring solutions that optimize uptime, elevate plant safety, and drive measurable efficiency.',
-  aboutVision: 'To be the most trusted industrial engineering and automation partner across process and manufacturing industries, recognized for technical depth, robust execution, and customer-first commitment.',
-  aboutApproach: 'We combine rigorous field-level engineering with cutting-edge Industry 4.0 technologies—from precision field sensors and rugged PLC/SCADA architectures to enterprise analytics and safety compliance.',
+  heroDescription:
+    'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions. We specialize in delivering advanced, cost-effective, and plant-ready solutions designed to improve operational efficiency, safety, productivity, and reliability.',
+  aboutIntro:
+    'AMM Automation is dedicated to engineering excellence, offering complete turnkey automation, process instrumentation, electrical engineering, and smart manufacturing integration for heavy industries and modern enterprises.',
+  aboutMission:
+    'To empower industrial operations with resilient, high-precision automation and intelligent digital monitoring solutions that optimize uptime, elevate plant safety, and drive measurable efficiency.',
+  aboutVision:
+    'To be the most trusted industrial engineering and automation partner across process and manufacturing industries, recognized for technical depth, robust execution, and customer-first commitment.',
+  aboutApproach:
+    'We combine rigorous field-level engineering with cutting-edge Industry 4.0 technologies—from precision field sensors and rugged PLC/SCADA architectures to enterprise analytics and safety compliance.',
   ctaHeading: "Let's Automate Today for a Smarter Tomorrow!",
-  ctaSubheading: 'Connect with our engineering specialists to discuss your plant automation, process instrumentation, or custom digital transformation requirements.',
+  ctaSubheading:
+    'Connect with our engineering specialists to discuss your plant automation, process instrumentation, or custom digital transformation requirements.',
   contactEmail: 'ammautomationsr@gmail.com',
   contactPhone: '+91 9204673578',
+  alternatePhone: '+91 9876543210',
   whatsappNumber: '+91 9204673578',
   address: 'Industrial Engineering Center, Sector 4, Bokaro / Ranchi Industrial Corridor, Jharkhand, India',
   workingHours: 'Monday - Saturday: 9:00 AM - 6:30 PM (24/7 Breakdown & Support on-call)'
 };
+
+export const initialPartners: PartnerCompanyItem[] = [
+  {
+    id: 'partner-1',
+    companyName: 'Global Infosoft',
+    slug: 'global-infosoft',
+    websiteUrl: 'https://globalinfosoft.com',
+    displayUrl: 'globalinfosoft.com',
+    category: 'Technology & Digital Solutions Partner',
+    shortDescription:
+      'Global Infosoft is a technology and digital solutions partner, supporting businesses with modern web solutions, software development, digital transformation, and innovative technology services.',
+    fullDescription:
+      'AMM Automation collaborates with Global Infosoft to deliver unified enterprise software, cloud SCADA dashboards, Industry 4.0 data pipelines, and responsive web platforms for modern manufacturing facilities.',
+    logo: '/images/hero_automation.jpg',
+    tags: [
+      'Modern Web Solutions',
+      'Software Development',
+      'Digital Transformation',
+      'Innovative Technology Services'
+    ],
+    establishedRole: 'Digital & Software Solutions Partner',
+    isActive: true,
+    displayOrder: 1
+  }
+];
 
 export const initialServices: ServiceItem[] = [
   {
     id: 'srv-1',
     title: 'Electrical Solutions',
     slug: 'electrical-solutions',
-    shortDescription: 'Comprehensive industrial pump and motor overhauling, testing, and precision stator/rotor rewinding services.',
-    fullDescription: 'AMM Automation delivers end-to-end electrical maintenance, refurbishment, and rewinding services for industrial pumps, AC/DC motors, heavy induction machines, and transformers. Our workshop and field technicians utilize high-grade insulation materials (Class F/H), precision dynamic balancing, and comprehensive load-testing protocols to restore peak machine efficiency and minimize unplanned downtime.',
+    shortDescription:
+      'Comprehensive industrial pump and motor overhauling, testing, and precision stator/rotor rewinding services.',
+    fullDescription:
+      'AMM Automation delivers end-to-end electrical maintenance, refurbishment, and rewinding services for industrial pumps, AC/DC motors, heavy induction machines, and transformers. Our workshop and field technicians utilize high-grade insulation materials (Class F/H), precision dynamic balancing, and comprehensive load-testing protocols to restore peak machine efficiency and minimize unplanned downtime.',
     image: '/images/plc_control_panel.jpg',
     iconName: 'Zap',
-    subOfferings: ['Pump & Motor Services', 'Stator & Rotor Rewindings', 'HT/LT Motor Overhauling', 'Dynamic Balancing & Vibration Analysis'],
+    subOfferings: [
+      'Pump & Motor Services',
+      'Stator & Rotor Rewindings',
+      'HT/LT Motor Overhauling',
+      'Dynamic Balancing & Vibration Analysis'
+    ],
     features: [
       'Class F and Class H high-grade copper rewinding',
       'Vacuum Pressure Impregnation (VPI) capability',
@@ -46,17 +94,24 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Power Industry', 'Steel Industry', 'Cement Industry', 'Water & Wastewater'],
     isActive: true,
     order: 1,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 1
   },
   {
     id: 'srv-2',
     title: 'Industrial Automation Solutions',
     slug: 'industrial-automation',
-    shortDescription: 'Turnkey PLC programming, SCADA development, HMI interfaces, and VFD/Electrical Drive panel integration.',
-    fullDescription: 'We architect, program, and commission robust industrial automation systems tailored to plant specifications. From Siemens, Rockwell/Allen Bradley, Schneider, and Mitsubishi PLCs to high-reliability SCADA supervisory control, distributed I/O, and variable frequency drive (VFD) panels, our solutions ensure repeatable precision, fail-safe interlocking, and intuitive operator telemetry.',
+    shortDescription:
+      'Turnkey PLC programming, SCADA development, HMI interfaces, and VFD/Electrical Drive panel integration.',
+    fullDescription:
+      'We architect, program, and commission robust industrial automation systems tailored to plant specifications. From Siemens, Rockwell/Allen Bradley, Schneider, and Mitsubishi PLCs to high-reliability SCADA supervisory control, distributed I/O, and variable frequency drive (VFD) panels, our solutions ensure repeatable precision, fail-safe interlocking, and intuitive operator telemetry.',
     image: '/images/hero_automation.jpg',
     iconName: 'Cpu',
-    subOfferings: ['PLC Programming & Architecture', 'SCADA Supervisory Control', 'VFD & Electrical Drive Systems', 'Control Panel Fabrication'],
+    subOfferings: [
+      'PLC Programming & Architecture',
+      'SCADA Supervisory Control',
+      'VFD & Electrical Drive Systems',
+      'Control Panel Fabrication'
+    ],
     features: [
       'Multi-vendor PLC programming (Siemens, Rockwell, Schneider, ABB, Delta)',
       'Custom SCADA screen design with historical trending & alarm logging',
@@ -73,17 +128,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Steel Industry', 'Cement Industry', 'Pharma', 'Food & Beverage', 'Automotive'],
     isActive: true,
     order: 2,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 2
   },
   {
     id: 'srv-3',
     title: 'Process Instruments',
     slug: 'process-instruments',
-    shortDescription: 'High-precision RTDs, thermocouples, flow, level, pressure transmitters, and thermal imaging diagnostics.',
-    fullDescription: 'Accurate process measurement is the foundation of plant safety and product quality. AMM Automation supplies, installs, calibrates, and maintains high-accuracy process instrumentation—including simplex/duplex RTDs, industrial thermocouples, thermal imaging condition monitoring, electromagnetic/vortex flow transmitters, radar/ultrasonic level transmitters, and differential pressure gauges.',
+    shortDescription:
+      'High-precision RTDs, thermocouples, flow, level, pressure transmitters, and thermal imaging diagnostics.',
+    fullDescription:
+      'Accurate process measurement is the foundation of plant safety and product quality. AMM Automation supplies, installs, calibrates, and maintains high-accuracy process instrumentation—including simplex/duplex RTDs, industrial thermocouples, thermal imaging condition monitoring, electromagnetic/vortex flow transmitters, radar/ultrasonic level transmitters, and differential pressure gauges.',
     image: '/images/instrumentation_field.jpg',
     iconName: 'Gauge',
-    subOfferings: ['RTDs & Thermocouples', 'Thermal Imaging Solutions', 'Flow Transmitters', 'Level Transmitters', 'Pressure & DP Transmitters'],
+    subOfferings: [
+      'RTDs & Thermocouples',
+      'Thermal Imaging Solutions',
+      'Flow Transmitters',
+      'Level Transmitters',
+      'Pressure & DP Transmitters'
+    ],
     features: [
       'Simplex & Duplex PT100/PT1000 RTD temperature sensors with thermowells',
       'Type K, J, R, S, B, N industrial thermocouples for high-temperature kilns',
@@ -101,249 +164,517 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Power Industry', 'Steel Industry', 'Oil & Gas', 'Pharma', 'Cement Industry'],
     isActive: true,
     order: 3,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 3
   },
   {
     id: 'srv-4',
-    title: 'Safety Systems',
-    slug: 'safety-systems',
-    shortDescription: 'Certified Safety PLCs, ESD (Emergency Shutdown) interlocks, SIL-rated loop engineering, and fire/gas detection.',
-    fullDescription: 'Industrial plant safety protects human lives and critical capital equipment. AMM Automation designs, integrates, and audits safety-instrumented systems (SIS) up to SIL-3 compliance. Our capabilities include fail-safe burner management (BMS), emergency depressurization systems, optical flame detection, toxic/combustible gas monitoring, and safety light curtains.',
+    title: 'LOTO Safety Solutions',
+    slug: 'loto-safety-solutions',
+    shortDescription:
+      'Industrial Lockout-Tagout systems, mechanical & electrical safety interlocks, and compliance auditing.',
+    fullDescription:
+      'Human safety and regulatory compliance are non-negotiable in modern industrial facilities. Our Lockout-Tagout (LOTO) solutions provide comprehensive hazardous energy control programs—including custom safety padlock stations, valve lockouts, circuit breaker lockouts, group lockout boxes, tailored procedure placards, and plant-wide technician safety training.',
     image: '/images/safety_systems.jpg',
     iconName: 'ShieldAlert',
-    subOfferings: ['Safety Instrumented Systems (SIS)', 'Emergency Shutdown (ESD)', 'Burner Management Systems (BMS)', 'Fire & Gas Detection Systems'],
+    subOfferings: [
+      'Lockout Tagout Hardware',
+      'Machine Energy Audit',
+      'Custom Procedure Placards',
+      'Industrial Safety Systems'
+    ],
     features: [
-      'TUV certified SIL-2/SIL-3 safety PLC architectures (1oo2, 2oo3 voting)',
-      'Dual-redundant power supplies and fail-safe field wiring',
-      'Emergency shutdown trip matrices and cause-and-effect validation',
-      'Fast-response optical IR3/UV flame detectors and toxic gas sensors',
-      'Comprehensive safety audit and periodic loop testing'
+      'OSHA-standard compliant Lockout/Tagout hardware and lockout stations',
+      'Energy isolation point mapping and visual identification tags',
+      'Valve, pneumatic, electrical breaker, and cable lockouts',
+      'Customized plant standard operating procedures (SOPs)',
+      'Safety audits and technician training workshops'
     ],
     applications: [
-      'Chemical reaction vessels and explosive zone storage',
-      'Blast furnace gas distribution and gas holder stations',
-      'Refinery distillation columns and compressor stations',
-      'Heavy press machines, shears, and automated robotic cells'
+      'Scheduled plant shutdown maintenance and overhauls',
+      'Electrical switchgear and MCC panel maintenance isolation',
+      'Confined space entry and pressurized line servicing',
+      'Heavy conveyor and crusher lockout procedures'
     ],
-    relatedIndustries: ['Oil & Gas', 'Steel Industry', 'Pharma', 'Power Industry'],
+    relatedIndustries: ['Steel Industry', 'Power Industry', 'Oil & Gas', 'Cement Industry', 'Pharma'],
     isActive: true,
     order: 4,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 4
   },
   {
     id: 'srv-5',
-    title: 'Robotics & Factory Automation',
-    slug: 'robotics-automation',
-    shortDescription: 'Industrial articulated robotic cells, automated guided vehicles (AGVs), vision inspection, and end-of-line packaging.',
-    fullDescription: 'Accelerate cycle times, eliminate manual handling fatigue, and ensure zero-defect output with robotic automation. We provide custom-tooled robotic cells (6-axis articulated, SCARA, and collaborative cobots) for precision arc/spot welding, high-speed pick-and-place, machine tending, palletizing, and automated vision inspection.',
+    title: 'Autonomous Robots for Logistics & Material Handling',
+    slug: 'autonomous-robots-logistics',
+    shortDescription:
+      'AGVs, AMRs, robotic palletizers, and automated guided lifting systems for modern shop floor logistics.',
+    fullDescription:
+      'Elevate material movement safety and warehouse throughput with our autonomous mobile robots (AMR), Automated Guided Vehicles (AGV), and heavy-duty robotic lifting systems. Engineered for harsh industrial environments, our robotics solutions navigate dynamic shop floors using LiDAR SLAM and optical guidance to transport raw materials, work-in-progress pallets, and finished goods seamlessly.',
     image: '/images/robotics_smart_plant.jpg',
     iconName: 'Bot',
-    subOfferings: ['Robotic Welding & Cutting', 'Pick-and-Place & Palletizing', 'Machine Vision Inspection', 'Collaborative Robots (Cobots)'],
+    subOfferings: [
+      'Autonomous Mobile Robots (AMR)',
+      'Automated Guided Vehicles (AGV)',
+      'Robotic Lifting & Palletizing',
+      'Fleet Management Software'
+    ],
     features: [
-      'Integration with KUKA, FANUC, ABB, and Universal Robots',
-      'Deep-learning 2D/3D camera vision inspection and barcode tracking',
-      'Custom pneumatic/vacuum end-of-arm tooling (EOAT) design',
-      'Full safety fencing with interlocked light curtains and area scanners',
-      'Plug-and-play integration with upstream conveyor and MES systems'
+      'Natural navigation via LiDAR SLAM (no floor magnetic tape required)',
+      'Payload capacities from 100 kg up to 3,000 kg heavy industrial lifts',
+      'Intelligent fleet dispatch and traffic control software',
+      'Automated opportunistic battery docking and charging',
+      'Seamless integration with shop-floor PLC lines and ERP/WMS systems'
     ],
     applications: [
-      'Automotive sheet metal welding and component handling',
-      'High-speed FMCG cartooning and pallet loading',
-      'CNC lathe and milling machine automatic billet tending',
-      'Pharmaceutical blister pack optical quality inspection'
+      'Assembly line part delivery and line-side replenishment',
+      'Automated pallet handling in high-density warehouses',
+      'Hazardous material and hot metal transit in foundry environments',
+      'End-of-line palletizing and stretch wrapping transfer'
     ],
-    relatedIndustries: ['Automotive', 'Food & Beverage', 'Pharma', 'Consumer Goods'],
+    relatedIndustries: ['Automotive', 'Logistics & Warehousing', 'Pharma', 'Food & Beverage', 'Steel Industry'],
     isActive: true,
     order: 5,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 5
   },
   {
     id: 'srv-6',
-    title: 'Industrial IoT & Energy Management',
-    slug: 'iiot-energy-management',
-    shortDescription: 'Smart edge telemetry, cloud monitoring, automated energy audits, and predictive vibration AI condition monitoring.',
-    fullDescription: 'Transition into Industry 4.0 with AMM Automation’s connected industrial IoT ecosystem. We deploy edge gateways, wireless vibration and temperature sensors, smart digital power meters, and cloud/on-prem dashboards to provide real-time plant KPIs, automated specific energy consumption (SEC) tracking, and predictive maintenance alerts.',
+    title: 'Industry 4.0 & IIoT Solutions',
+    slug: 'industry-4-iiot-solutions',
+    shortDescription:
+      'Energy Management (EMS), Building Management (BMS), real-time process telemetry, and predictive edge monitoring.',
+    fullDescription:
+      'Transform raw machine data into operational intelligence. Our Industry 4.0 and Industrial Internet of Things (IIoT) solutions integrate smart edge gateways, cloud/on-premise historians, Energy Management Systems (EMS), Building Management Systems (BMS), and predictive machine health monitoring to slash power consumption, eliminate bottlenecks, and prevent unexpected machine failures.',
     image: '/images/iot_smart_energy.jpg',
-    iconName: 'LineChart',
-    subOfferings: ['Smart Energy Monitoring (EMS)', 'Edge Telemetry & Cloud Gateways', 'Predictive Maintenance Sensors', 'OEE & Production Dashboards'],
+    iconName: 'Activity',
+    subOfferings: [
+      'Energy Management System (EMS)',
+      'Building Management System (BMS)',
+      'Process Monitoring',
+      'Smart Industrial Monitoring'
+    ],
     features: [
-      'RS485 Modbus / MQTT edge gateway integration with zero data loss',
-      'Sub-meter level energy profiling (kWh, kVA, Power Factor, THD)',
-      'Automated peak-demand alerts and tariff optimization algorithms',
-      'Continuous vibration FFT spectrum analysis for early bearing wear',
-      'Custom web & mobile dashboards accessible anywhere with role-based access'
+      'Real-time power quality and specific energy consumption (SEC) tracking',
+      'Wireless vibration, temperature, and current clamp IoT sensors',
+      'Cloud & on-premise live dashboarding with instant SMS/Email alerts',
+      'OEE (Overall Equipment Effectiveness) tracking and downtime analytics',
+      'Secure edge computing with MQTT, OPC-UA, and REST API support'
     ],
     applications: [
-      'Plant-wide ISO 50001 energy management compliance',
-      'Critical pump, blower, and gearbox continuous health tracking',
-      'Overall Equipment Effectiveness (OEE) tracking on packaging lines',
-      'Remote utility monitoring across multi-site industrial campuses'
+      'Plant-wide ISO 50001 energy auditing and load management',
+      'Continuous vibration diagnostics on critical turbo-machinery',
+      'Clean room HVAC environmental monitoring (Temp, RH, DP)',
+      'Remote utility monitoring across multi-facility operations'
     ],
-    relatedIndustries: ['Steel Industry', 'Cement Industry', 'Power Industry', 'Pharma', 'Food & Beverage'],
+    relatedIndustries: ['Power Industry', 'Cement Industry', 'Pharma', 'Steel Industry', 'Food & Beverage'],
     isActive: true,
     order: 6,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    displayOrder: 6
+  },
+  {
+    id: 'srv-7',
+    title: 'Customised Management System',
+    slug: 'customised-management-system',
+    shortDescription:
+      'Tailor-made industrial software and management systems to streamline plant workflows and shop-floor tracking.',
+    fullDescription:
+      'Off-the-shelf software often fails to capture the specialized operational workflows of manufacturing plants. AMM Automation develops tailored management systems—including digital logbooks, maintenance management (CMMS), quality assurance tracking, shift handovers, and material requisition portals—designed specifically around your team’s operating rhythm.',
+    image: '/images/scada_system.jpg',
+    iconName: 'LayoutDashboard',
+    subOfferings: [
+      'Custom Plant Software',
+      'CMMS Maintenance Portals',
+      'Digital Shift Logbooks',
+      'Quality Assurance Trackers'
+    ],
+    features: [
+      'Tailored database architecture matching plant hierarchy',
+      'Role-based permissions for engineers, operators, and plant managers',
+      'Automated daily/monthly generation of production & compliance reports',
+      'Direct integration with PLC/SCADA tags for automated data entry',
+      'Responsive web interfaces accessible on shop floor rugged tablets'
+    ],
+    applications: [
+      'Preventive & corrective maintenance ticket tracking',
+      'Raw material batch traceability and lab test certificates',
+      'Shift-wise operator logs and energy consumption summaries',
+      'Tooling and spare parts inventory control'
+    ],
+    relatedIndustries: ['Steel Industry', 'Power Industry', 'Cement Industry', 'Automotive', 'Pharma'],
+    isActive: true,
+    order: 7,
+    displayOrder: 7
+  },
+  {
+    id: 'srv-8',
+    title: 'CRM & ERP Solutions',
+    slug: 'crm-erp-solutions',
+    shortDescription:
+      'End-to-end CRM and ERP systems engineered to unify sales, procurement, inventory, and enterprise production.',
+    fullDescription:
+      'Achieve unified enterprise control with our robust CRM and ERP implementations. We help manufacturing and B2B industrial firms streamline customer relationship lifecycles, lead pipeline management, procurement, vendor tracking, bill of materials (BOM), production scheduling, and financial accounting into one synchronized system.',
+    image: '/images/plc_control_panel.jpg',
+    iconName: 'Database',
+    subOfferings: [
+      'B2B Sales CRM',
+      'Manufacturing ERP',
+      'Procurement & Vendor Modules',
+      'Inventory & BOM Management'
+    ],
+    features: [
+      'Multi-stage quotation, order booking, and dispatch workflow',
+      'Live warehouse inventory and minimum reorder level alerts',
+      'Production planning with Multi-level Bill of Materials (BOM)',
+      'GST-compliant invoicing, ledger reconciliation, and payment tracking',
+      'Executive dashboards with real-time gross margin and cash flow insights'
+    ],
+    applications: [
+      'Industrial equipment manufacturing & job-shop order management',
+      'Electrical contracting sales pipeline and material procurement',
+      'Multi-branch spare parts distribution tracking',
+      'Contractor billing and milestone certification'
+    ],
+    relatedIndustries: ['Automotive', 'Logistics & Warehousing', 'Steel Industry', 'Food & Beverage'],
+    isActive: true,
+    order: 8,
+    displayOrder: 8
+  },
+  {
+    id: 'srv-9',
+    title: 'Digital Marketing',
+    slug: 'digital-marketing',
+    shortDescription:
+      'Targeted B2B industrial digital marketing, search visibility, lead generation, and technical brand presence.',
+    fullDescription:
+      'Modern industrial procurement starts online. We provide high-impact B2B digital marketing strategies designed specifically for engineering enterprises, OEMs, and industrial service providers. From technical search engine optimization (SEO) and Google Ads search campaigns to LinkedIn B2B account-based marketing, we help expand your industrial reach.',
+    image: '/images/water_treatment.jpg',
+    iconName: 'TrendingUp',
+    subOfferings: [
+      'Industrial B2B SEO',
+      'High-Intent Search Ads',
+      'LinkedIn B2B Outreach',
+      'Technical Content & Case Studies'
+    ],
+    features: [
+      'Technical SEO optimized for industrial keywords and tender opportunities',
+      'Targeted Google Search & Display campaigns with negative-keyword filtering',
+      'LinkedIn Account-Based Marketing (ABM) for procurement managers & plant heads',
+      'High-converting landing pages with direct WhatsApp and enquiry integrations',
+      'Performance analytics and verified qualified lead reporting'
+    ],
+    applications: [
+      'Industrial equipment and machinery manufacturer lead generation',
+      'Testing, calibration, and engineering service visibility',
+      'Product catalog launch campaigns in domestic and export markets',
+      'Corporate brand credibility and capability portfolio presentation'
+    ],
+    relatedIndustries: ['Automotive', 'Pharma', 'Logistics & Warehousing', 'Food & Beverage'],
+    isActive: true,
+    order: 9,
+    displayOrder: 9
+  },
+  {
+    id: 'srv-10',
+    title: 'Mobile Application Development',
+    slug: 'mobile-applications',
+    shortDescription:
+      'Custom Android and iOS applications connecting engineers and managers directly to live plant operations.',
+    fullDescription:
+      'Stay connected to plant operations from anywhere. AMM Automation builds secure, high-performance mobile applications for Android and iOS that interface directly with SCADA systems, IIoT telemetry, maintenance ticketing systems, and enterprise ERPs. With push notification alarms, live machine metrics, and offline data sync, your plant status is always at your fingertips.',
+    image: '/images/metal_plant.jpg',
+    iconName: 'Smartphone',
+    subOfferings: [
+      'Plant Monitoring Mobile Apps',
+      'Field Service & Maintenance Apps',
+      'Executive Mobile Dashboards',
+      'Offline Data Sync'
+    ],
+    features: [
+      'Native & cross-platform development (React Native & Flutter)',
+      'Real-time WebSocket alerts for critical machine trip conditions',
+      'Biometric authentication and encrypted local credential storage',
+      'Barcode and QR code scanning for equipment asset tagging',
+      'Offline log capture with automatic server synchronization on reconnect'
+    ],
+    applications: [
+      'Plant manager remote dashboard for daily generation & downtime',
+      'Field engineer work order dispatch and on-site checklist validation',
+      'Warehouse barcode scanning for incoming/outgoing asset audits',
+      'Safety incident reporting with GPS tagging and image uploads'
+    ],
+    relatedIndustries: ['Steel Industry', 'Power Industry', 'Logistics & Warehousing', 'Pharma', 'Water & Wastewater'],
+    isActive: true,
+    order: 10,
+    displayOrder: 10
   }
 ];
 
 export const initialIndustries: IndustryItem[] = [
   {
     id: 'ind-1',
-    name: 'Steel Industry',
-    slug: 'steel-industry',
-    description: 'Heavy-duty automation, blast furnace instrumentation, rolling mill drive synchronization, and harsh environment process control.',
+    name: 'Power Industry',
+    slug: 'power-industry',
+    description:
+      'Thermal, hydel, and captive power plant automation, boiler instrumentation, and electrical drive overhauls ensuring round-the-clock grid reliability.',
     image: '/images/metal_plant.jpg',
     iconName: 'Flame',
     challenges: [
-      'Extreme ambient temperatures and heavy abrasive dust causing sensor failure',
-      'Synchronized multi-stand drive control requiring sub-millisecond precision',
-      'High energy consumption and gas emission management across blast furnaces',
-      'Unscheduled downtime during continuous slab casting resulting in heavy losses'
+      'High thermal stress causing frequent thermocouple and sensor degradation',
+      'Stringent environmental emission standards requiring real-time CEMS monitoring',
+      'Critical pump and fan motor failures leading to multi-megawatt generation loss',
+      'Complex interlocks between turbine, boiler, and feedwater systems'
     ],
     solutions: [
-      'Ruggedized RTD/Thermocouple assemblies rated up to 1600°C with ceramic thermowells',
-      'Siemens S7-1500 / Rockwell ControlLogix mill control with high-speed VFD drives',
-      'Automated blast furnace gas (BFG) and coke oven gas (COG) safety trip systems',
-      'Real-time vibration and thermal bearing monitoring on heavy continuous casters'
+      'High-reliability duplex RTD/Thermocouple assemblies rated up to 1400°C',
+      'Redundant PLC/SCADA architecture with bumpless transfer for boiler controls',
+      'On-site HT motor rewinding, dynamic balancing, and vibration trend analysis',
+      'Integrated Energy & Emission Management Systems with continuous logging'
     ],
-    relatedServices: ['Industrial Automation Solutions', 'Process Instruments', 'Electrical Solutions', 'Safety Systems'],
+    relatedServices: [
+      'Process Instruments',
+      'Industrial Automation Solutions',
+      'Electrical Solutions',
+      'Industry 4.0 & IIoT Solutions'
+    ],
     isActive: true,
-    order: 1
+    order: 1,
+    displayOrder: 1
   },
   {
     id: 'ind-2',
-    name: 'Power Generation',
-    slug: 'power-industry',
-    description: 'Thermal and renewable power plant automation, boiler-turbine-generator (BTG) instrumentation, and high-voltage motor overhauls.',
-    image: '/images/plc_control_panel.jpg',
-    iconName: 'Zap',
+    name: 'Steel Industry',
+    slug: 'steel-industry',
+    description:
+      'Rugged automation, furnace thermal imaging, mill drive control, and safety systems built to thrive in extreme heat, dust, and continuous mechanical shock.',
+    image: '/images/metal_plant.jpg',
+    iconName: 'Boxes',
     challenges: [
-      'Critical boiler drum level and steam temperature fluctuations',
-      'Stringent environmental emission norms (SOx, NOx, SPM monitoring)',
-      'HT boiler feed pump motor failures under continuous duty cycle',
-      'Turbine overspeed and vibration protection reliability'
+      'Extreme ambient temperatures and conductive metallic dust damaging electronics',
+      'Multi-stand rolling mill drive speed synchronization to prevent cobbles',
+      'Severe safety hazards during slag tapping and ladle transfer operations',
+      'High unmetered electrical energy consumption in electric arc furnaces'
     ],
     solutions: [
-      'Triple modular redundant (2oo3) drum level DP and radar measurement systems',
-      'Continuous emission monitoring system (CEMS) telemetry integration',
-      'Precision HT motor overhauling, VPI rewinding, and dynamic field balancing',
-      'SIL-3 certified emergency steam turbine trip and bypass interlocks'
+      'IP66/NEMA 4X purged control panels with active air conditioning',
+      'High-speed synchronized VFD drives with microsecond torque control',
+      'Non-contact continuous thermal imaging for ladle and refractory shell monitoring',
+      'Plant-wide LOTO safety interlocks and energy sub-metering systems'
     ],
-    relatedServices: ['Electrical Solutions', 'Process Instruments', 'Safety Systems', 'Industrial Automation Solutions'],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Process Instruments',
+      'LOTO Safety Solutions',
+      'Electrical Solutions'
+    ],
     isActive: true,
-    order: 2
+    order: 2,
+    displayOrder: 2
   },
   {
     id: 'ind-3',
-    name: 'Water & Wastewater',
-    slug: 'water-treatment',
-    description: 'Turnkey automation for industrial effluent treatment plants (ETP), sewage treatment plants (STP), and water distribution SCADA.',
-    image: '/images/water_treatment.jpg',
-    iconName: 'Droplets',
+    name: 'Cement Industry',
+    slug: 'cement-industry',
+    description:
+      'Automated raw material grinding, rotary kiln temperature tracking, bagging line control, and comprehensive heavy motor maintenance.',
+    image: '/images/plc_control_panel.jpg',
+    iconName: 'Building2',
     challenges: [
-      'Geographically dispersed pump houses requiring centralized telemetry',
-      'Chemical dosing variations causing water quality non-compliance',
-      'Frequent pump impeller wear and cavitation failures',
-      'High electrical pumping energy costs during peak tariff hours'
+      'Heavy abrasive dust causing rapid mechanical wear and sensor blockage',
+      'Kiln shell hotspots requiring early detection to avoid catastrophic downtime',
+      'Huge electrical load spikes during crusher and ball mill startups',
+      'High manual labor requirements in packaging and dispatch sections'
     ],
     solutions: [
-      'Long-range cellular/radio SCADA for remote reservoir and valve monitoring',
-      'Automated pH, turbidity, dissolved oxygen (DO), and chlorine control loops',
-      'Heavy submersible pump overhauling, rewinding, and mechanical seal replacement',
-      'VFD speed control optimizing pump delivery curves to reduce energy by up to 28%'
+      'Heavy-duty radar level transmitters and non-clogging differential pressure gauges',
+      'Kiln infrared line scanners and automated alarm monitoring',
+      'Soft starter and medium-voltage VFD integration for ball mills and ID fans',
+      'Autonomous palletizing robots and automated truck loading controls'
     ],
-    relatedServices: ['Industrial Automation Solutions', 'Process Instruments', 'Electrical Solutions', 'Industrial IoT & Energy Management'],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Process Instruments',
+      'Autonomous Robots for Logistics & Material Handling',
+      'Electrical Solutions'
+    ],
     isActive: true,
-    order: 3
+    order: 3,
+    displayOrder: 3
   },
   {
     id: 'ind-4',
-    name: 'Automotive & Discrete Manufacturing',
-    slug: 'automotive-manufacturing',
-    description: 'High-speed assembly automation, robotic welding fixtures, conveyor sequencing, and machine vision quality inspection.',
-    image: '/images/robotics_smart_plant.jpg',
-    iconName: 'Car',
+    name: 'Oil & Gas',
+    slug: 'oil-and-gas',
+    description:
+      'Hazardous area certified instrumentation, pipeline pressure telemetry, and safety energy isolation systems.',
+    image: '/images/instrumentation_field.jpg',
+    iconName: 'Fuel',
     challenges: [
-      'Tight cycle time constraints requiring rapid tooling transitions',
-      'Zero-defect quality standards on safety-critical automotive parts',
-      'Operator safety around high-speed pneumatic presses and robotic cells',
-      'Lack of real-time visibility into overall equipment effectiveness (OEE)'
+      'Zone 0 / Zone 1 explosive atmospheres demanding intrinsically safe instrumentation',
+      'Custody transfer accuracy requirements for volumetric and mass flow measurement',
+      'High risk of catastrophic energy release during valve and piping maintenance',
+      'Remote tank farm inventory monitoring and leak detection'
     ],
     solutions: [
-      'Turnkey multi-axis robotic welding and material handling integration',
-      'Cognex / Keyence high-resolution machine vision inspection stations',
-      'Safety light curtains, laser scanners, and dual-channel safety relays',
-      'Edge IoT gateways streaming line tact time, scrap count, and OEE to plant screens'
+      'ATEX / IECEx certified smart pressure and flow transmitters',
+      'SIL-rated Emergency Shutdown (ESD) and safety PLC interlocks',
+      'Engineered Lockout/Tagout valve isolation and lockout management systems',
+      'Secure SCADA telemetry with satellite / 4G cellular edge fallback'
     ],
-    relatedServices: ['Robotics & Factory Automation', 'Industrial Automation Solutions', 'Safety Systems', 'Industrial IoT & Energy Management'],
+    relatedServices: [
+      'Process Instruments',
+      'LOTO Safety Solutions',
+      'Industrial Automation Solutions',
+      'Industry 4.0 & IIoT Solutions'
+    ],
     isActive: true,
-    order: 4
-  }
-];
-
-export const initialProjects: ProjectItem[] = [
-  {
-    id: 'proj-1',
-    title: 'Modernization of Hot Strip Mill Automation & VFD Drive Synchronization',
-    slug: 'hot-strip-mill-automation',
-    shortDescription: 'Turnkey PLC & multi-drive retrofit for a 6-stand hot rolling mill resulting in 18% higher throughput and 99.4% operational uptime.',
-    fullDescription: 'AMM Automation engineered and executed complete automation modernization for a major integrated steel producer. The legacy DC drive system on 6 continuous finishing stands was replaced with synchronized Siemens AC drives and S7-1500F safety PLCs over high-speed Profinet IRT. The upgrade delivered precise tension control between stands, eliminated cobbles, and introduced a high-resolution SCADA interface with historical microsecond fault capture.',
-    featuredImage: '/images/hero_automation.jpg',
-    gallery: [
-      '/images/plc_control_panel.jpg',
-      '/images/scada_system.jpg',
-      '/images/metal_plant.jpg'
-    ],
-    industry: 'Steel Industry',
-    services: ['Industrial Automation Solutions', 'Electrical Solutions', 'Safety Systems'],
-    technologies: ['Siemens S7-1500 PLC', 'Sinamics S120 Drives', 'WinCC Professional SCADA', 'Profinet IRT', 'Safety Integrated'],
-    status: 'Completed',
-    clientType: 'Major Integrated Steel Plant',
-    location: 'Bokaro Industrial Corridor, Jharkhand',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    order: 4,
+    displayOrder: 4
   },
   {
-    id: 'proj-2',
-    title: 'High-Pressure Boiler Drum Level & Combustion Control Instrumentation',
-    slug: 'boiler-instrumentation-upgrade',
-    shortDescription: 'Triplicated DP level transmitters and pneumatic fuel-air cross-limiting control for a 120 TPH captive power plant boiler.',
-    fullDescription: 'To address steam temperature swings and drum level trip occurrences during load changes, AMM Automation designed a 2oo3 voting drum level measurement architecture and implemented a digital 3-element feed-water control loop. The project also included zirconia oxygen analyzers in flue gas and high-accuracy RTD thermowell assemblies for superheater tubes.',
-    featuredImage: '/images/instrumentation_field.jpg',
-    gallery: [
-      '/images/plc_control_panel.jpg',
-      '/images/hero_automation.jpg'
+    id: 'ind-5',
+    name: 'Pharma',
+    slug: 'pharma',
+    description:
+      '21 CFR Part 11 compliant cleanroom monitoring, automated reactor batching, and sterile material transit robots.',
+    image: '/images/iot_smart_energy.jpg',
+    iconName: 'Stethoscope',
+    challenges: [
+      'Strict regulatory compliance (21 CFR Part 11) for electronic records and audit trails',
+      'Tight tolerance environmental control (temperature, humidity, differential pressure)',
+      'Cross-contamination risks during manual material transit between cleanrooms',
+      'Batch repeatability and exact ingredient dosing accuracy'
     ],
-    industry: 'Power Generation',
-    services: ['Process Instruments', 'Safety Systems', 'Industrial Automation Solutions'],
-    technologies: ['HART Differential Pressure Transmitters', 'Zirconia Flue Gas Analyzers', 'Simplex/Duplex RTDs', 'SIL-3 Safety Loop Logic'],
-    status: 'Completed',
-    clientType: 'Thermal Power Utility',
-    location: 'Odisha Industrial Zone',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    solutions: [
+      'Validated SCADA and BMS systems with tamper-proof electronic audit trails',
+      'Sanitary Tri-clamp RTDs, electromagnetic flowmeters, and cleanroom transmitters',
+      'Sterile cleanroom-rated Autonomous Mobile Robots (AMRs) for material transit',
+      'Custom batch tracking and Quality Assurance (QA) software modules'
+    ],
+    relatedServices: [
+      'Industry 4.0 & IIoT Solutions',
+      'Process Instruments',
+      'Autonomous Robots for Logistics & Material Handling',
+      'Customised Management System'
+    ],
+    isActive: true,
+    order: 5,
+    displayOrder: 5
   },
   {
-    id: 'proj-3',
-    title: 'Robotic Weld Cell & Automated End-of-Line Inspection',
-    slug: 'robotic-weld-inspection-cell',
-    shortDescription: 'Turnkey 6-axis robotic welding workstation with 3D laser bead inspection and dual safety zone enclosure.',
-    fullDescription: 'Custom-designed robotic welding solution for automotive chassis cross-member fabrication. The system features a 6-axis industrial robot, automatic torch cleaner, dual-station servo positioner, and an integrated machine vision camera validating weld penetration and dimensional tolerances before ejection.',
-    featuredImage: '/images/robotics_smart_plant.jpg',
-    gallery: [
-      '/images/hero_automation.jpg',
-      '/images/plc_control_panel.jpg'
+    id: 'ind-6',
+    name: 'Water & Wastewater',
+    slug: 'water-and-wastewater',
+    description:
+      'Water treatment plant (WTP) automation, sewage treatment (STP) control, pump station telemetry, and flow metering.',
+    image: '/images/robotics_smart_plant.jpg',
+    iconName: 'Droplets',
+    challenges: [
+      'Geographically dispersed pumping stations requiring centralized monitoring',
+      'Corrosive chemicals and sludge fouling standard level and flow sensors',
+      'Excessive power costs in continuous aeration blower operation',
+      'Need for automated chlorine dosing and pH balance control'
     ],
-    industry: 'Automotive & Discrete Manufacturing',
-    services: ['Robotics & Factory Automation', 'Safety Systems', 'Industrial Automation Solutions'],
-    technologies: ['6-Axis Industrial Robot', 'High-Speed Machine Vision', 'Safety Area Scanners', 'Modbus TCP Telemetry'],
-    status: 'Completed',
-    clientType: 'Tier-1 Automotive Component Manufacturer',
-    location: 'Jamshedpur Auto Hub',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-01-10T00:00:00.000Z'
+    solutions: [
+      'Ultrasonic/Radar open-channel and tank level transmitters with zero-contact design',
+      'Electromagnetic flowmeters for raw water, treated effluent, and chemical dosing',
+      'VFD speed control on aeration blowers modulated by live dissolved oxygen (DO) feedback',
+      'Cloud SCADA & mobile app telemetry for remote pump house status'
+    ],
+    relatedServices: [
+      'Process Instruments',
+      'Electrical Solutions',
+      'Industrial Automation Solutions',
+      'Mobile Application Development'
+    ],
+    isActive: true,
+    order: 6,
+    displayOrder: 6
+  },
+  {
+    id: 'ind-7',
+    name: 'Food & Beverage',
+    slug: 'food-and-beverage',
+    description:
+      'Hygienic batch processing, CIP/SIP automated cycles, thermal sterilization monitoring, and robotic packaging.',
+    image: '/images/robotics_smart_plant.jpg',
+    iconName: 'Utensils',
+    challenges: [
+      'Food safety compliance requiring CIP (Clean-In-Place) washdown proof equipment',
+      'High-speed packaging bottle necking and product labeling defects',
+      'Recipe consistency across variable ingredient moisture and viscosity',
+      'Traceability of batch numbers from raw milk/grain to retail carton'
+    ],
+    solutions: [
+      'Stainless steel IP69K hygienic sensors and washdown servo control',
+      'Automated Clean-in-Place (CIP) sequence programming with conductivity monitoring',
+      'High-speed delta and cartesian robotic case packers and palletizers',
+      'End-to-end ERP recipe management and batch genealogy tracking'
+    ],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Autonomous Robots for Logistics & Material Handling',
+      'CRM & ERP Solutions',
+      'Process Instruments'
+    ],
+    isActive: true,
+    order: 7,
+    displayOrder: 7
+  },
+  {
+    id: 'ind-8',
+    name: 'Automotive',
+    slug: 'automotive',
+    description:
+      'Robotic welding lines, conveyor synchronization, torque tool interlocks, and intelligent component AGV delivery.',
+    image: '/images/water_treatment.jpg',
+    iconName: 'Car',
+    challenges: [
+      'Zero-defect assembly demands with tight cycle time constraints',
+      'Just-In-Time (JIT) line-side delivery of hundreds of unique part variations',
+      'Heavy tooling wear and unexpected electric spindle motor degradation',
+      'Need for automated Poka-Yoke error proofing on critical fastener torques'
+    ],
+    solutions: [
+      'Heavy-duty industrial AMRs and AGVs with automatic route optimization',
+      'Multi-axis robotic cell PLC integration with vision-guided quality inspection',
+      'Predictive vibration monitoring and motor rewinding for stamping presses',
+      'Custom manufacturing execution and traceability portals'
+    ],
+    relatedServices: [
+      'Autonomous Robots for Logistics & Material Handling',
+      'Industrial Automation Solutions',
+      'Electrical Solutions',
+      'Customised Management System'
+    ],
+    isActive: true,
+    order: 8,
+    displayOrder: 8
+  },
+  {
+    id: 'ind-9',
+    name: 'Logistics & Warehousing',
+    slug: 'logistics-and-warehousing',
+    description:
+      'Autonomous mobile transport fleets, automated sortation conveyor controls, WMS integration, and smart dock monitoring.',
+    image: '/images/robotics_smart_plant.jpg',
+    iconName: 'Truck',
+    challenges: [
+      'High labor costs and operator turnover in repetitive pallet transport',
+      'Forklift collisions and pedestrian safety risks in crowded aisles',
+      'Inventory inaccuracies causing order fulfillment delays and stockouts',
+      'Peak season throughput bottlenecks at dispatch and inbound docks'
+    ],
+    solutions: [
+      'Fleet of autonomous pallet lifters with 360° safety laser scanners',
+      'High-speed sorting conveyor controls with dynamic barcode scan tunnels',
+      'Real-time Warehouse Management System (WMS) integration with ERP',
+      'Energy-efficient lighting and BMS controls for high-bay fulfillment centers'
+    ],
+    relatedServices: [
+      'Autonomous Robots for Logistics & Material Handling',
+      'CRM & ERP Solutions',
+      'Industry 4.0 & IIoT Solutions',
+      'Mobile Application Development'
+    ],
+    isActive: true,
+    order: 9,
+    displayOrder: 9
   }
 ];

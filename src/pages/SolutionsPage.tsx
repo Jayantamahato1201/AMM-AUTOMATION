@@ -33,19 +33,19 @@ export const SolutionsPage: React.FC = () => {
   ).filter(Boolean);
 
   return (
-    <div className="bg-slate-50 text-slate-900">
+    <div className="bg-slate-50 dark:bg-[#050D1A] text-slate-900 dark:text-slate-100 transition-colors duration-300">
       {/* Header Banner */}
-      <section className="bg-[#0A192F] text-white py-16 lg:py-24 border-b border-slate-800 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1E293B_1px,transparent_1px),linear-gradient(to_bottom,#1E293B_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl space-y-4">
-            <p className="text-[#F27D26] font-bold tracking-[0.3em] uppercase text-xs sm:text-sm">
+      <section className="bg-[#0A192F] dark:bg-[#071324] text-white py-14 sm:py-16 lg:py-24 border-b border-slate-800 relative overflow-hidden transition-colors duration-300">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#1E293B_1px,transparent_1px),linear-gradient(to_bottom,#1E293B_1px,transparent_1px)] bg-[size:3rem_3rem] opacity-20 pointer-events-none" />
+        <div className="relative w-full max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="max-w-3xl space-y-3 sm:space-y-4">
+            <p className="text-[#F27D26] font-bold tracking-[0.25em] sm:tracking-[0.3em] uppercase text-xs sm:text-sm">
               Engineering & Automation Solutions
             </p>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white italic">
+            <h1 className="text-fluid-h1 font-bold tracking-tight text-white italic">
               Industrial Solutions Catalogue
             </h1>
-            <p className="text-base sm:text-lg text-slate-300 leading-relaxed font-light">
+            <p className="text-fluid-lead text-slate-300 leading-relaxed font-light">
               From heavy electrical machine overhauls and certified process instrumentation to turnkey PLC/SCADA and autonomous factory robotics.
             </p>
           </div>
@@ -53,31 +53,31 @@ export const SolutionsPage: React.FC = () => {
       </section>
 
       {/* Filter & Search Bar */}
-      <section className="bg-white border-b border-slate-200 py-6 sticky top-[69px] z-30 shadow-xs">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row gap-4 justify-between items-center">
+      <section className="bg-white dark:bg-[#071324] border-b border-slate-200 dark:border-slate-800 py-4 sm:py-6 sticky top-[69px] z-30 shadow-xs transition-colors duration-300">
+        <div className="w-full max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12 flex flex-col md:flex-row gap-3 sm:gap-4 justify-between items-center">
           {/* Search */}
           <div className="relative w-full md:w-80">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
               placeholder="Search solutions, PLC, pumps, RTD..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-none text-xs sm:text-sm focus:outline-none focus:border-[#0A192F]"
+              className="w-full pl-9 pr-4 py-2 sm:py-2.5 bg-slate-50 dark:bg-[#0A192F] border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 rounded-none text-xs sm:text-sm focus:outline-none focus:border-[#F27D26]"
             />
           </div>
 
           {/* Industry Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 whitespace-nowrap flex items-center gap-1">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0 scrollbar-none">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-400 whitespace-nowrap flex items-center gap-1 shrink-0">
               <Filter className="w-3.5 h-3.5" /> Domain:
             </span>
             <button
               onClick={() => setSelectedIndustryFilter('All')}
-              className={`text-xs px-3 py-1.5 font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+              className={`text-xs px-3 py-1.5 font-bold uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                 selectedIndustryFilter === 'All'
-                  ? 'bg-[#0A192F] text-white'
-                  : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                  ? 'bg-[#0A192F] dark:bg-[#F27D26] text-white'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
               }`}
             >
               All Domains
@@ -86,10 +86,10 @@ export const SolutionsPage: React.FC = () => {
               <button
                 key={ind}
                 onClick={() => setSelectedIndustryFilter(ind)}
-                className={`text-xs px-3 py-1.5 font-bold uppercase tracking-wider transition-colors whitespace-nowrap ${
+                className={`text-xs px-3 py-1.5 font-bold uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                   selectedIndustryFilter === ind
-                    ? 'bg-[#0A192F] text-white'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                    ? 'bg-[#0A192F] dark:bg-[#F27D26] text-white'
+                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
                 {ind}
@@ -100,14 +100,14 @@ export const SolutionsPage: React.FC = () => {
       </section>
 
       {/* Services Grid */}
-      <section className="py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-6 flex justify-between items-center text-xs text-slate-500">
+      <section className="py-10 sm:py-12 lg:py-16">
+        <div className="w-full max-w-7xl 2xl:max-w-[1536px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="mb-6 flex flex-wrap justify-between items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span>Showing {filteredServices.length} dynamic engineering offerings</span>
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="text-orange-600 hover:underline font-semibold"
+                className="text-[#F27D26] hover:underline font-semibold cursor-pointer"
               >
                 Clear Search
               </button>
@@ -115,7 +115,7 @@ export const SolutionsPage: React.FC = () => {
           </div>
 
           {filteredServices.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {filteredServices.map(service => (
                 <ServiceCard
                   key={service.id}
@@ -125,10 +125,10 @@ export const SolutionsPage: React.FC = () => {
               ))}
             </div>
           ) : (
-            <div className="text-center py-16 bg-white rounded-lg border border-slate-200 p-8">
+            <div className="text-center py-12 sm:py-16 bg-white dark:bg-[#0A192F] rounded-lg border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-sm">
               <Cpu className="w-10 h-10 text-slate-400 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-slate-900">No matching solutions found</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              <h3 className="text-base font-bold text-slate-900 dark:text-white">No matching solutions found</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto">
                 Try adjusting your search keywords or clearing the industry filter.
               </p>
               <button
@@ -136,9 +136,9 @@ export const SolutionsPage: React.FC = () => {
                   setSearchTerm('');
                   setSelectedIndustryFilter('All');
                 }}
-                className="mt-4 text-xs font-semibold bg-blue-900 text-white px-4 py-2 rounded"
+                className="mt-4 text-xs font-semibold bg-[#0A192F] dark:bg-[#F27D26] text-white px-4 py-2 rounded cursor-pointer"
               >
-                Reset Filters
+                Reset All Filters
               </button>
             </div>
           )}

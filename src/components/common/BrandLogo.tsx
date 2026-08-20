@@ -1,5 +1,7 @@
 import React from 'react';
-import logoImg from '../../assets/images/amm_logo.jpg';
+import { motion } from 'motion/react';
+
+const logoImg = '/images/amm_logo.jpg';
 
 interface BrandLogoProps {
   variant?: 'navbar' | 'footer' | 'symbol' | 'full' | 'admin';
@@ -41,7 +43,7 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
   if (variant === 'footer') {
     return (
       <div className={`flex items-center gap-3.5 ${className}`}>
-        <div className="w-12 h-12 rounded bg-white p-1 flex items-center justify-center shrink-0 shadow-sm border border-slate-700">
+        <div className="w-12 h-12 rounded bg-white p-1 flex items-center justify-center shrink-0 shadow-sm border border-slate-200 dark:border-slate-700">
           <img
             src={logoImg}
             alt="AMM Automation Logo"
@@ -51,10 +53,10 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
         </div>
         <div className="flex flex-col">
           <div className="flex items-center gap-1.5">
-            <span className="text-xl font-black tracking-tight text-white leading-none">
+            <span className="text-xl font-black tracking-tight text-slate-900 dark:text-white leading-none">
               AMM
             </span>
-            <span className="text-xl font-bold tracking-tight text-slate-200 leading-none">
+            <span className="text-xl font-bold tracking-tight text-slate-700 dark:text-slate-200 leading-none">
               AUTOMATION
             </span>
           </div>
@@ -91,10 +93,25 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
     );
   }
 
-  // Default: navbar
+  // Default: navbar - Premium 3D depth with subtle animation & interactive tilt
   return (
-    <div className={`flex items-center gap-3 group ${className}`}>
-      <div className="w-11 h-11 bg-white p-1 rounded-sm border border-slate-200 flex items-center justify-center shrink-0 shadow-xs group-hover:border-[#0A192F] transition-all">
+    <motion.div
+      initial={{ opacity: 0, scale: 0.95, y: -2 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      whileHover={{ scale: 1.02 }}
+      className={`flex items-center gap-2 sm:gap-3 group min-w-0 ${className}`}
+      style={{
+        perspective: '800px',
+        transformStyle: 'preserve-3d',
+      }}
+    >
+      <div
+        className="w-9 h-9 sm:w-11 sm:h-11 bg-white p-1 rounded-xs border border-slate-200 dark:border-slate-700 flex items-center justify-center shrink-0 shadow-xs group-hover:border-[#F27D26] group-hover:shadow-[0_4px_16px_rgba(242,125,38,0.22)] transition-all duration-300 transform-gpu group-hover:[transform:rotateY(-8deg)_rotateX(6deg)_translateZ(6px)]"
+        style={{
+          transformStyle: 'preserve-3d',
+        }}
+      >
         <img
           src={logoImg}
           alt="AMM Automation Logo"
@@ -102,21 +119,23 @@ export const BrandLogo: React.FC<BrandLogoProps> = ({
           className="w-full h-full object-contain transform group-hover:scale-105 transition-transform"
         />
       </div>
-      <div className="flex flex-col">
-        <div className="flex items-center gap-1.5">
-          <span className="text-xl sm:text-2xl font-black tracking-tighter text-[#0A192F] leading-none">
+      <div
+        className="flex flex-col min-w-0 transform-gpu group-hover:[transform:translateZ(4px)] transition-transform duration-300"
+      >
+        <div className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
+          <span className="text-base sm:text-xl lg:text-2xl font-black tracking-tighter text-[#0A192F] dark:text-white leading-none transition-colors">
             AMM
           </span>
-          <span className="text-xl sm:text-2xl font-bold tracking-tighter text-[#0A192F] leading-none">
+          <span className="text-base sm:text-xl lg:text-2xl font-bold tracking-tighter text-[#0A192F] dark:text-slate-200 leading-none transition-colors">
             AUTOMATION
           </span>
         </div>
         {showTagline && (
-          <p className="text-[10px] tracking-[0.22em] uppercase text-[#F27D26] font-bold mt-1 leading-none font-mono">
+          <p className="text-[8px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.22em] uppercase text-[#F27D26] font-bold mt-0.5 sm:mt-1 leading-none font-mono truncate">
             Innovate • Automate • Control
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 };

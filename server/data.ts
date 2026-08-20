@@ -1,34 +1,81 @@
-import { ServiceItem, IndustryItem, ProjectItem, EnquiryItem, WebsiteContent } from '../src/types.js';
+import {
+  ServiceItem,
+  IndustryItem,
+  PartnerCompanyItem,
+  EnquiryItem,
+  QuoteRequestItem,
+  TestimonialItem,
+  NewsletterSubscriberItem,
+  WebsiteContent
+} from '../src/types.js';
 
 export const initialWebsiteContent: WebsiteContent = {
   companyName: 'AMM Automation',
   tagline: 'Innovate. Automate. Control.',
   heroHeading: 'Industrial Automation & Smart Solutions',
   heroSubheading: 'Smart Solutions. Safer Operations. Stronger Tomorrow.',
-  heroDescription: 'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions. We specialize in delivering advanced, cost-effective, and plant-ready solutions designed to improve operational efficiency, safety, productivity, and reliability.',
-  aboutIntro: 'AMM Automation is dedicated to engineering excellence, offering complete turnkey automation, process instrumentation, electrical engineering, and smart manufacturing integration for heavy industries and modern enterprises.',
-  aboutMission: 'To empower industrial operations with resilient, high-precision automation and intelligent digital monitoring solutions that optimize uptime, elevate plant safety, and drive measurable efficiency.',
-  aboutVision: 'To be the most trusted industrial engineering and automation partner across process and manufacturing industries, recognized for technical depth, robust execution, and customer-first commitment.',
-  aboutApproach: 'We combine rigorous field-level engineering with cutting-edge Industry 4.0 technologies—from precision field sensors and rugged PLC/SCADA architectures to enterprise analytics and safety compliance.',
+  heroDescription:
+    'AMM Automation is a reliable partner in the field of industrial automation, process instrumentation, and smart Industry 4.0 solutions. We specialize in delivering advanced, cost-effective, and plant-ready solutions designed to improve operational efficiency, safety, productivity, and reliability.',
+  aboutIntro:
+    'AMM Automation is dedicated to engineering excellence, offering complete turnkey automation, process instrumentation, electrical engineering, and smart manufacturing integration for heavy industries and modern enterprises.',
+  aboutMission:
+    'To empower industrial operations with resilient, high-precision automation and intelligent digital monitoring solutions that optimize uptime, elevate plant safety, and drive measurable efficiency.',
+  aboutVision:
+    'To be the most trusted industrial engineering and automation partner across process and manufacturing industries, recognized for technical depth, robust execution, and customer-first commitment.',
+  aboutApproach:
+    'We combine rigorous field-level engineering with cutting-edge Industry 4.0 technologies—from precision field sensors and rugged PLC/SCADA architectures to enterprise analytics and safety compliance.',
   ctaHeading: "Let's Automate Today for a Smarter Tomorrow!",
-  ctaSubheading: 'Connect with our engineering specialists to discuss your plant automation, process instrumentation, or custom digital transformation requirements.',
+  ctaSubheading:
+    'Connect with our engineering specialists to discuss your plant automation, process instrumentation, or custom digital transformation requirements.',
   contactEmail: 'ammautomationsr@gmail.com',
   contactPhone: '+91 9204673578',
+  alternatePhone: '+91 9876543210',
   whatsappNumber: '+91 9204673578',
   address: 'Industrial Engineering Center, Sector 4, Bokaro / Ranchi Industrial Corridor, Jharkhand, India',
-  workingHours: 'Monday - Saturday: 9:00 AM - 6:30 PM (24/7 Breakdown & Support on-call)'
+  workingHours: 'Monday - Saturday: 9:00 AM - 6:30 PM (24/7 Breakdown & Support on-call)',
+  metaTitle: 'AMM AUTOMATION | Turnkey Industrial Automation, PLC SCADA & Rewinding',
+  metaDescription:
+    'Certified industrial automation, PLC programming, control panel fabrication, and heavy HT/LT motor rewinding.'
 };
+
+export const initialPartners: PartnerCompanyItem[] = [
+  {
+    id: 'partner-1',
+    companyName: 'Global Infosoft',
+    slug: 'global-infosoft',
+    websiteUrl: 'https://globalinfosoft.com',
+    displayUrl: 'globalinfosoft.com',
+    category: 'Technology & Digital Solutions Partner',
+    shortDescription:
+      'Global Infosoft is a technology and digital solutions partner supporting businesses with modern web solutions, software development, digital transformation, and innovative technology services.',
+    fullDescription:
+      'AMM Automation collaborates with Global Infosoft to deliver unified enterprise software, cloud SCADA dashboards, Industry 4.0 data pipelines, and responsive web platforms for modern manufacturing facilities.',
+    logo: '/images/hero_automation.jpg',
+    tags: ['Web & Software Development', 'Digital Transformation', 'Enterprise Systems', 'Cloud & IoT Integration'],
+    establishedRole: 'Digital & Software Engineering Alliance',
+    isActive: true,
+    displayOrder: 1,
+    createdAt: '2025-01-01T00:00:00.000Z'
+  }
+];
 
 export const initialServices: ServiceItem[] = [
   {
     id: 'srv-1',
     title: 'Electrical Solutions',
     slug: 'electrical-solutions',
-    shortDescription: 'Comprehensive industrial pump and motor overhauling, testing, and precision stator/rotor rewinding services.',
-    fullDescription: 'AMM Automation delivers end-to-end electrical maintenance, refurbishment, and rewinding services for industrial pumps, AC/DC motors, heavy induction machines, and transformers. Our workshop and field technicians utilize high-grade insulation materials (Class F/H), precision dynamic balancing, and comprehensive load-testing protocols to restore peak machine efficiency and minimize unplanned downtime.',
-    image: "/images/plc_control_panel.jpg",
+    shortDescription:
+      'Comprehensive industrial pump and motor overhauling, testing, and precision stator/rotor rewinding services.',
+    fullDescription:
+      'AMM Automation delivers end-to-end electrical maintenance, refurbishment, and rewinding services for industrial pumps, AC/DC motors, heavy induction machines, and transformers. Our workshop and field technicians utilize high-grade insulation materials (Class F/H), precision dynamic balancing, and comprehensive load-testing protocols to restore peak machine efficiency and minimize unplanned downtime.',
+    image: '/images/plc_control_panel.jpg',
     iconName: 'Zap',
-    subOfferings: ['Pump & Motor Services', 'Stator & Rotor Rewindings', 'HT/LT Motor Overhauling', 'Dynamic Balancing & Vibration Analysis'],
+    subOfferings: [
+      'Pump & Motor Services',
+      'Stator & Rotor Rewindings',
+      'HT/LT Motor Overhauling',
+      'Dynamic Balancing & Vibration Analysis'
+    ],
     features: [
       'Class F and Class H high-grade copper rewinding',
       'Vacuum Pressure Impregnation (VPI) capability',
@@ -45,17 +92,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Power Industry', 'Steel Industry', 'Cement Industry', 'Water & Wastewater'],
     isActive: true,
     order: 1,
+    displayOrder: 1,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-2',
     title: 'Industrial Automation Solutions',
     slug: 'industrial-automation',
-    shortDescription: 'Turnkey PLC programming, SCADA development, HMI interfaces, and VFD/Electrical Drive panel integration.',
-    fullDescription: 'We architect, program, and commission robust industrial automation systems tailored to plant specifications. From Siemens, Rockwell/Allen Bradley, Schneider, and Mitsubishi PLCs to high-reliability SCADA supervisory control, distributed I/O, and variable frequency drive (VFD) panels, our solutions ensure repeatable precision, fail-safe interlocking, and intuitive operator telemetry.',
-    image: "/images/hero_automation.jpg",
+    shortDescription:
+      'Turnkey PLC programming, SCADA development, HMI interfaces, and VFD/Electrical Drive panel integration.',
+    fullDescription:
+      'We architect, program, and commission robust industrial automation systems tailored to plant specifications. From Siemens, Rockwell/Allen Bradley, Schneider, and Mitsubishi PLCs to high-reliability SCADA supervisory control, distributed I/O, and variable frequency drive (VFD) panels, our solutions ensure repeatable precision, fail-safe interlocking, and intuitive operator telemetry.',
+    image: '/images/hero_automation.jpg',
     iconName: 'Cpu',
-    subOfferings: ['PLC Programming & Architecture', 'SCADA Supervisory Control', 'VFD & Electrical Drive Systems', 'Control Panel Fabrication'],
+    subOfferings: [
+      'PLC Programming & Architecture',
+      'SCADA Supervisory Control',
+      'VFD & Electrical Drive Systems',
+      'Control Panel Fabrication'
+    ],
     features: [
       'Multi-vendor PLC programming (Siemens, Rockwell, Schneider, ABB, Delta)',
       'Custom SCADA screen design with historical trending & alarm logging',
@@ -72,17 +127,26 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Steel Industry', 'Cement Industry', 'Pharma', 'Food & Beverage', 'Automotive'],
     isActive: true,
     order: 2,
+    displayOrder: 2,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-3',
     title: 'Process Instruments',
     slug: 'process-instruments',
-    shortDescription: 'High-precision RTDs, thermocouples, flow, level, pressure transmitters, and thermal imaging diagnostics.',
-    fullDescription: 'Accurate process measurement is the foundation of plant safety and product quality. AMM Automation supplies, installs, calibrates, and maintains high-accuracy process instrumentation—including simplex/duplex RTDs, industrial thermocouples, thermal imaging condition monitoring, electromagnetic/vortex flow transmitters, radar/ultrasonic level transmitters, and differential pressure gauges.',
-    image: "/images/instrumentation_field.jpg",
+    shortDescription:
+      'High-precision RTDs, thermocouples, flow, level, pressure transmitters, and thermal imaging diagnostics.',
+    fullDescription:
+      'Accurate process measurement is the foundation of plant safety and product quality. AMM Automation supplies, installs, calibrates, and maintains high-accuracy process instrumentation—including simplex/duplex RTDs, industrial thermocouples, thermal imaging condition monitoring, electromagnetic/vortex flow transmitters, radar/ultrasonic level transmitters, and differential pressure gauges.',
+    image: '/images/instrumentation_field.jpg',
     iconName: 'Gauge',
-    subOfferings: ['RTDs & Thermocouples', 'Thermal Imaging Solutions', 'Flow Transmitters', 'Level Transmitters', 'Pressure & DP Transmitters'],
+    subOfferings: [
+      'RTDs & Thermocouples',
+      'Thermal Imaging Solutions',
+      'Flow Transmitters',
+      'Level Transmitters',
+      'Pressure & DP Transmitters'
+    ],
     features: [
       'Simplex & Duplex PT100/PT1000 RTD temperature sensors with thermowells',
       'Type K, J, R, S, B, N industrial thermocouples for high-temperature kilns',
@@ -100,17 +164,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Power Industry', 'Steel Industry', 'Oil & Gas', 'Pharma', 'Cement Industry'],
     isActive: true,
     order: 3,
+    displayOrder: 3,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-4',
     title: 'LOTO Safety Solutions',
     slug: 'loto-safety-solutions',
-    shortDescription: 'Industrial Lockout-Tagout systems, mechanical & electrical safety interlocks, and compliance auditing.',
-    fullDescription: 'Human safety and regulatory compliance are non-negotiable in modern industrial facilities. Our Lockout-Tagout (LOTO) solutions provide comprehensive hazardous energy control programs—including custom safety padlock stations, valve lockouts, circuit breaker lockouts, group lockout boxes, tailored procedure placards, and plant-wide technician safety training.',
-    image: "/images/safety_systems.jpg",
+    shortDescription:
+      'Industrial Lockout-Tagout systems, mechanical & electrical safety interlocks, and compliance auditing.',
+    fullDescription:
+      'Human safety and regulatory compliance are non-negotiable in modern industrial facilities. Our Lockout-Tagout (LOTO) solutions provide comprehensive hazardous energy control programs—including custom safety padlock stations, valve lockouts, circuit breaker lockouts, group lockout boxes, tailored procedure placards, and plant-wide technician safety training.',
+    image: '/images/safety_systems.jpg',
     iconName: 'ShieldAlert',
-    subOfferings: ['Lockout Tagout Hardware', 'Machine Energy Audit', 'Custom Procedure Placards', 'Industrial Safety Systems'],
+    subOfferings: [
+      'Lockout Tagout Hardware',
+      'Machine Energy Audit',
+      'Custom Procedure Placards',
+      'Industrial Safety Systems'
+    ],
     features: [
       'OSHA-standard compliant Lockout/Tagout hardware and lockout stations',
       'Energy isolation point mapping and visual identification tags',
@@ -127,17 +199,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Steel Industry', 'Power Industry', 'Oil & Gas', 'Cement Industry', 'Pharma'],
     isActive: true,
     order: 4,
+    displayOrder: 4,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-5',
     title: 'Autonomous Robots for Logistics & Material Handling',
     slug: 'autonomous-robots-logistics',
-    shortDescription: 'AGVs, AMRs, robotic palletizers, and automated guided lifting systems for modern shop floor logistics.',
-    fullDescription: 'Elevate material movement safety and warehouse throughput with our autonomous mobile robots (AMR), Automated Guided Vehicles (AGV), and heavy-duty robotic lifting systems. Engineered for harsh industrial environments, our robotics solutions navigate dynamic shop floors using LiDAR SLAM and optical guidance to transport raw materials, work-in-progress pallets, and finished goods seamlessly.',
-    image: "/images/robotics_smart_plant.jpg",
+    shortDescription:
+      'AGVs, AMRs, robotic palletizers, and automated guided lifting systems for modern shop floor logistics.',
+    fullDescription:
+      'Elevate material movement safety and warehouse throughput with our autonomous mobile robots (AMR), Automated Guided Vehicles (AGV), and heavy-duty robotic lifting systems. Engineered for harsh industrial environments, our robotics solutions navigate dynamic shop floors using LiDAR SLAM and optical guidance to transport raw materials, work-in-progress pallets, and finished goods seamlessly.',
+    image: '/images/robotics_smart_plant.jpg',
     iconName: 'Bot',
-    subOfferings: ['Autonomous Mobile Robots (AMR)', 'Automated Guided Vehicles (AGV)', 'Robotic Lifting & Palletizing', 'Fleet Management Software'],
+    subOfferings: [
+      'Autonomous Mobile Robots (AMR)',
+      'Automated Guided Vehicles (AGV)',
+      'Robotic Lifting & Palletizing',
+      'Fleet Management Software'
+    ],
     features: [
       'Natural navigation via LiDAR SLAM (no floor magnetic tape required)',
       'Payload capacities from 100 kg up to 3,000 kg heavy industrial lifts',
@@ -154,17 +234,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Automotive', 'Logistics & Warehousing', 'Pharma', 'Food & Beverage', 'Steel Industry'],
     isActive: true,
     order: 5,
+    displayOrder: 5,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-6',
     title: 'Industry 4.0 & IIoT Solutions',
     slug: 'industry-4-iiot-solutions',
-    shortDescription: 'Energy Management (EMS), Building Management (BMS), real-time process telemetry, and predictive edge monitoring.',
-    fullDescription: 'Transform raw machine data into operational intelligence. Our Industry 4.0 and Industrial Internet of Things (IIoT) solutions integrate smart edge gateways, cloud/on-premise historians, Energy Management Systems (EMS), Building Management Systems (BMS), and predictive machine health monitoring to slash power consumption, eliminate bottlenecks, and prevent unexpected machine failures.',
-    image: "/images/iot_smart_energy.jpg",
+    shortDescription:
+      'Energy Management (EMS), Building Management (BMS), real-time process telemetry, and predictive edge monitoring.',
+    fullDescription:
+      'Transform raw machine data into operational intelligence. Our Industry 4.0 and Industrial Internet of Things (IIoT) solutions integrate smart edge gateways, cloud/on-premise historians, Energy Management Systems (EMS), Building Management Systems (BMS), and predictive machine health monitoring to slash power consumption, eliminate bottlenecks, and prevent unexpected machine failures.',
+    image: '/images/iot_smart_energy.jpg',
     iconName: 'Activity',
-    subOfferings: ['Energy Management System (EMS)', 'Building Management System (BMS)', 'Process Monitoring', 'Smart Industrial Monitoring'],
+    subOfferings: [
+      'Energy Management System (EMS)',
+      'Building Management System (BMS)',
+      'Process Monitoring',
+      'Smart Industrial Monitoring'
+    ],
     features: [
       'Real-time power quality and specific energy consumption (SEC) tracking',
       'Wireless vibration, temperature, and current clamp IoT sensors',
@@ -181,17 +269,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Power Industry', 'Cement Industry', 'Pharma', 'Steel Industry', 'Food & Beverage'],
     isActive: true,
     order: 6,
+    displayOrder: 6,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-7',
     title: 'Customised Management System',
     slug: 'customised-management-system',
-    shortDescription: 'Tailor-made industrial software and management systems to streamline plant workflows and shop-floor tracking.',
-    fullDescription: 'Off-the-shelf software often fails to capture the specialized operational workflows of manufacturing plants. AMM Automation develops tailored management systems—including digital logbooks, maintenance management (CMMS), quality assurance tracking, shift handovers, and material requisition portals—designed specifically around your team’s operating rhythm.',
-    image: "/images/scada_system.jpg",
+    shortDescription:
+      'Tailor-made industrial software and management systems to streamline plant workflows and shop-floor tracking.',
+    fullDescription:
+      'Off-the-shelf software often fails to capture the specialized operational workflows of manufacturing plants. AMM Automation develops tailored management systems—including digital logbooks, maintenance management (CMMS), quality assurance tracking, shift handovers, and material requisition portals—designed specifically around your team’s operating rhythm.',
+    image: '/images/scada_system.jpg',
     iconName: 'LayoutDashboard',
-    subOfferings: ['Custom Plant Software', 'CMMS Maintenance Portals', 'Digital Shift Logbooks', 'Quality Assurance Trackers'],
+    subOfferings: [
+      'Custom Plant Software',
+      'CMMS Maintenance Portals',
+      'Digital Shift Logbooks',
+      'Quality Assurance Trackers'
+    ],
     features: [
       'Tailored database architecture matching plant hierarchy',
       'Role-based permissions for engineers, operators, and plant managers',
@@ -208,17 +304,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Steel Industry', 'Power Industry', 'Cement Industry', 'Automotive', 'Pharma'],
     isActive: true,
     order: 7,
+    displayOrder: 7,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-8',
     title: 'CRM & ERP Solutions',
     slug: 'crm-erp-solutions',
-    shortDescription: 'End-to-end CRM and ERP systems engineered to unify sales, procurement, inventory, and enterprise production.',
-    fullDescription: 'Achieve unified enterprise control with our robust CRM and ERP implementations. We help manufacturing and B2B industrial firms streamline customer relationship lifecycles, lead pipeline management, procurement, vendor tracking, bill of materials (BOM), production scheduling, and financial accounting into one synchronized system.',
-    image: "/images/plc_control_panel.jpg",
+    shortDescription:
+      'End-to-end CRM and ERP systems engineered to unify sales, procurement, inventory, and enterprise production.',
+    fullDescription:
+      'Achieve unified enterprise control with our robust CRM and ERP implementations. We help manufacturing and B2B industrial firms streamline customer relationship lifecycles, lead pipeline management, procurement, vendor tracking, bill of materials (BOM), production scheduling, and financial accounting into one synchronized system.',
+    image: '/images/plc_control_panel.jpg',
     iconName: 'Database',
-    subOfferings: ['B2B Sales CRM', 'Manufacturing ERP', 'Procurement & Vendor Modules', 'Inventory & BOM Management'],
+    subOfferings: [
+      'B2B Sales CRM',
+      'Manufacturing ERP',
+      'Procurement & Vendor Modules',
+      'Inventory & BOM Management'
+    ],
     features: [
       'Multi-stage quotation, order booking, and dispatch workflow',
       'Live warehouse inventory and minimum reorder level alerts',
@@ -235,17 +339,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Automotive', 'Logistics & Warehousing', 'Steel Industry', 'Food & Beverage'],
     isActive: true,
     order: 8,
+    displayOrder: 8,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-9',
     title: 'Digital Marketing',
     slug: 'digital-marketing',
-    shortDescription: 'Targeted B2B industrial digital marketing, search visibility, lead generation, and technical brand presence.',
-    fullDescription: 'Modern industrial procurement starts online. We provide high-impact B2B digital marketing strategies designed specifically for engineering enterprises, OEMs, and industrial service providers. From technical search engine optimization (SEO) and Google Ads search campaigns to LinkedIn B2B account-based marketing, we help expand your industrial reach.',
-    image: "/images/water_treatment.jpg",
+    shortDescription:
+      'Targeted B2B industrial digital marketing, search visibility, lead generation, and technical brand presence.',
+    fullDescription:
+      'Modern industrial procurement starts online. We provide high-impact B2B digital marketing strategies designed specifically for engineering enterprises, OEMs, and industrial service providers. From technical search engine optimization (SEO) and Google Ads search campaigns to LinkedIn B2B account-based marketing, we help expand your industrial reach.',
+    image: '/images/water_treatment.jpg',
     iconName: 'TrendingUp',
-    subOfferings: ['Industrial B2B SEO', 'High-Intent Search Ads', 'LinkedIn B2B Outreach', 'Technical Content & Case Studies'],
+    subOfferings: [
+      'Industrial B2B SEO',
+      'High-Intent Search Ads',
+      'LinkedIn B2B Outreach',
+      'Technical Content & Case Studies'
+    ],
     features: [
       'Technical SEO optimized for industrial keywords and tender opportunities',
       'Targeted Google Search & Display campaigns with negative-keyword filtering',
@@ -262,17 +374,25 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Automotive', 'Pharma', 'Logistics & Warehousing', 'Food & Beverage'],
     isActive: true,
     order: 9,
+    displayOrder: 9,
     createdAt: '2025-01-10T00:00:00.000Z'
   },
   {
     id: 'srv-10',
     title: 'Mobile Application Development',
     slug: 'mobile-applications',
-    shortDescription: 'Custom Android and iOS applications connecting engineers and managers directly to live plant operations.',
-    fullDescription: 'Stay connected to plant operations from anywhere. AMM Automation builds secure, high-performance mobile applications for Android and iOS that interface directly with SCADA systems, IIoT telemetry, maintenance ticketing systems, and enterprise ERPs. With push notification alarms, live machine metrics, and offline data sync, your plant status is always at your fingertips.',
-    image: "/images/metal_plant.jpg",
+    shortDescription:
+      'Custom Android and iOS applications connecting engineers and managers directly to live plant operations.',
+    fullDescription:
+      'Stay connected to plant operations from anywhere. AMM Automation builds secure, high-performance mobile applications for Android and iOS that interface directly with SCADA systems, IIoT telemetry, maintenance ticketing systems, and enterprise ERPs. With push notification alarms, live machine metrics, and offline data sync, your plant status is always at your fingertips.',
+    image: '/images/metal_plant.jpg',
     iconName: 'Smartphone',
-    subOfferings: ['Plant Monitoring Mobile Apps', 'Field Service & Maintenance Apps', 'Executive Mobile Dashboards', 'Offline Data Sync'],
+    subOfferings: [
+      'Plant Monitoring Mobile Apps',
+      'Field Service & Maintenance Apps',
+      'Executive Mobile Dashboards',
+      'Offline Data Sync'
+    ],
     features: [
       'Native & cross-platform development (React Native & Flutter)',
       'Real-time WebSocket alerts for critical machine trip conditions',
@@ -289,6 +409,7 @@ export const initialServices: ServiceItem[] = [
     relatedIndustries: ['Steel Industry', 'Power Industry', 'Logistics & Warehousing', 'Pharma', 'Water & Wastewater'],
     isActive: true,
     order: 10,
+    displayOrder: 10,
     createdAt: '2025-01-10T00:00:00.000Z'
   }
 ];
@@ -298,8 +419,9 @@ export const initialIndustries: IndustryItem[] = [
     id: 'ind-1',
     name: 'Power Industry',
     slug: 'power-industry',
-    description: 'Thermal, hydel, and captive power plant automation, boiler instrumentation, and electrical drive overhauls ensuring round-the-clock grid reliability.',
-    image: "/images/metal_plant.jpg",
+    description:
+      'Thermal, hydel, and captive power plant automation, boiler instrumentation, and electrical drive overhauls ensuring round-the-clock grid reliability.',
+    image: '/images/metal_plant.jpg',
     iconName: 'Flame',
     challenges: [
       'High thermal stress causing frequent thermocouple and sensor degradation',
@@ -313,16 +435,23 @@ export const initialIndustries: IndustryItem[] = [
       'On-site HT motor rewinding, dynamic balancing, and vibration trend analysis',
       'Integrated Energy & Emission Management Systems with continuous logging'
     ],
-    relatedServices: ['Process Instruments', 'Industrial Automation Solutions', 'Electrical Solutions', 'Industry 4.0 & IIoT Solutions'],
+    relatedServices: [
+      'Process Instruments',
+      'Industrial Automation Solutions',
+      'Electrical Solutions',
+      'Industry 4.0 & IIoT Solutions'
+    ],
     isActive: true,
-    order: 1
+    order: 1,
+    displayOrder: 1
   },
   {
     id: 'ind-2',
     name: 'Steel Industry',
     slug: 'steel-industry',
-    description: 'Rugged automation, furnace thermal imaging, mill drive control, and safety systems built to thrive in extreme heat, dust, and continuous mechanical shock.',
-    image: "/images/metal_plant.jpg",
+    description:
+      'Rugged automation, furnace thermal imaging, mill drive control, and safety systems built to thrive in extreme heat, dust, and continuous mechanical shock.',
+    image: '/images/metal_plant.jpg',
     iconName: 'Boxes',
     challenges: [
       'Extreme ambient temperatures and conductive metallic dust damaging electronics',
@@ -336,16 +465,23 @@ export const initialIndustries: IndustryItem[] = [
       'Non-contact continuous thermal imaging for ladle and refractory shell monitoring',
       'Plant-wide LOTO safety interlocks and energy sub-metering systems'
     ],
-    relatedServices: ['Industrial Automation Solutions', 'Process Instruments', 'LOTO Safety Solutions', 'Electrical Solutions'],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Process Instruments',
+      'LOTO Safety Solutions',
+      'Electrical Solutions'
+    ],
     isActive: true,
-    order: 2
+    order: 2,
+    displayOrder: 2
   },
   {
     id: 'ind-3',
     name: 'Cement Industry',
     slug: 'cement-industry',
-    description: 'Automated raw material grinding, rotary kiln temperature tracking, bagging line control, and comprehensive heavy motor maintenance.',
-    image: "/images/plc_control_panel.jpg",
+    description:
+      'Automated raw material grinding, rotary kiln temperature tracking, bagging line control, and comprehensive heavy motor maintenance.',
+    image: '/images/plc_control_panel.jpg',
     iconName: 'Building2',
     challenges: [
       'Heavy abrasive dust causing rapid mechanical wear and sensor blockage',
@@ -359,16 +495,23 @@ export const initialIndustries: IndustryItem[] = [
       'Soft starter and medium-voltage VFD integration for ball mills and ID fans',
       'Autonomous palletizing robots and automated truck loading controls'
     ],
-    relatedServices: ['Industrial Automation Solutions', 'Process Instruments', 'Autonomous Robots for Logistics & Material Handling', 'Electrical Solutions'],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Process Instruments',
+      'Autonomous Robots for Logistics & Material Handling',
+      'Electrical Solutions'
+    ],
     isActive: true,
-    order: 3
+    order: 3,
+    displayOrder: 3
   },
   {
     id: 'ind-4',
     name: 'Oil & Gas',
     slug: 'oil-and-gas',
-    description: 'Hazardous area certified instrumentation, pipeline pressure telemetry, and safety energy isolation systems.',
-    image: "/images/instrumentation_field.jpg",
+    description:
+      'Hazardous area certified instrumentation, pipeline pressure telemetry, and safety energy isolation systems.',
+    image: '/images/instrumentation_field.jpg',
     iconName: 'Fuel',
     challenges: [
       'Zone 0 / Zone 1 explosive atmospheres demanding intrinsically safe instrumentation',
@@ -382,16 +525,23 @@ export const initialIndustries: IndustryItem[] = [
       'Engineered Lockout/Tagout valve isolation and lockout management systems',
       'Secure SCADA telemetry with satellite / 4G cellular edge fallback'
     ],
-    relatedServices: ['Process Instruments', 'LOTO Safety Solutions', 'Industrial Automation Solutions', 'Industry 4.0 & IIoT Solutions'],
+    relatedServices: [
+      'Process Instruments',
+      'LOTO Safety Solutions',
+      'Industrial Automation Solutions',
+      'Industry 4.0 & IIoT Solutions'
+    ],
     isActive: true,
-    order: 4
+    order: 4,
+    displayOrder: 4
   },
   {
     id: 'ind-5',
     name: 'Pharma',
     slug: 'pharma',
-    description: '21 CFR Part 11 compliant cleanroom monitoring, automated reactor batching, and sterile material transit robots.',
-    image: "/images/iot_smart_energy.jpg",
+    description:
+      '21 CFR Part 11 compliant cleanroom monitoring, automated reactor batching, and sterile material transit robots.',
+    image: '/images/iot_smart_energy.jpg',
     iconName: 'Stethoscope',
     challenges: [
       'Strict regulatory compliance (21 CFR Part 11) for electronic records and audit trails',
@@ -405,16 +555,23 @@ export const initialIndustries: IndustryItem[] = [
       'Sterile cleanroom-rated Autonomous Mobile Robots (AMRs) for material transit',
       'Custom batch tracking and Quality Assurance (QA) software modules'
     ],
-    relatedServices: ['Industry 4.0 & IIoT Solutions', 'Process Instruments', 'Autonomous Robots for Logistics & Material Handling', 'Customised Management System'],
+    relatedServices: [
+      'Industry 4.0 & IIoT Solutions',
+      'Process Instruments',
+      'Autonomous Robots for Logistics & Material Handling',
+      'Customised Management System'
+    ],
     isActive: true,
-    order: 5
+    order: 5,
+    displayOrder: 5
   },
   {
     id: 'ind-6',
     name: 'Water & Wastewater',
     slug: 'water-and-wastewater',
-    description: 'Water treatment plant (WTP) automation, sewage treatment (STP) control, pump station telemetry, and flow metering.',
-    image: "/images/robotics_smart_plant.jpg",
+    description:
+      'Water treatment plant (WTP) automation, sewage treatment (STP) control, pump station telemetry, and flow metering.',
+    image: '/images/robotics_smart_plant.jpg',
     iconName: 'Droplets',
     challenges: [
       'Geographically dispersed pumping stations requiring centralized monitoring',
@@ -428,16 +585,23 @@ export const initialIndustries: IndustryItem[] = [
       'VFD speed control on aeration blowers modulated by live dissolved oxygen (DO) feedback',
       'Cloud SCADA & mobile app telemetry for remote pump house status'
     ],
-    relatedServices: ['Process Instruments', 'Electrical Solutions', 'Industrial Automation Solutions', 'Mobile Application Development'],
+    relatedServices: [
+      'Process Instruments',
+      'Electrical Solutions',
+      'Industrial Automation Solutions',
+      'Mobile Application Development'
+    ],
     isActive: true,
-    order: 6
+    order: 6,
+    displayOrder: 6
   },
   {
     id: 'ind-7',
     name: 'Food & Beverage',
     slug: 'food-and-beverage',
-    description: 'Hygienic batch processing, CIP/SIP automated cycles, thermal sterilization monitoring, and robotic packaging.',
-    image: "/images/robotics_smart_plant.jpg",
+    description:
+      'Hygienic batch processing, CIP/SIP automated cycles, thermal sterilization monitoring, and robotic packaging.',
+    image: '/images/robotics_smart_plant.jpg',
     iconName: 'Utensils',
     challenges: [
       'Food safety compliance requiring CIP (Clean-In-Place) washdown proof equipment',
@@ -451,16 +615,23 @@ export const initialIndustries: IndustryItem[] = [
       'High-speed delta and cartesian robotic case packers and palletizers',
       'End-to-end ERP recipe management and batch genealogy tracking'
     ],
-    relatedServices: ['Industrial Automation Solutions', 'Autonomous Robots for Logistics & Material Handling', 'CRM & ERP Solutions', 'Process Instruments'],
+    relatedServices: [
+      'Industrial Automation Solutions',
+      'Autonomous Robots for Logistics & Material Handling',
+      'CRM & ERP Solutions',
+      'Process Instruments'
+    ],
     isActive: true,
-    order: 7
+    order: 7,
+    displayOrder: 7
   },
   {
     id: 'ind-8',
     name: 'Automotive',
     slug: 'automotive',
-    description: 'Robotic welding lines, conveyor synchronization, torque tool interlocks, and intelligent component AGV delivery.',
-    image: "/images/water_treatment.jpg",
+    description:
+      'Robotic welding lines, conveyor synchronization, torque tool interlocks, and intelligent component AGV delivery.',
+    image: '/images/water_treatment.jpg',
     iconName: 'Car',
     challenges: [
       'Zero-defect assembly demands with tight cycle time constraints',
@@ -474,16 +645,23 @@ export const initialIndustries: IndustryItem[] = [
       'Predictive vibration monitoring and motor rewinding for stamping presses',
       'Custom manufacturing execution and traceability portals'
     ],
-    relatedServices: ['Autonomous Robots for Logistics & Material Handling', 'Industrial Automation Solutions', 'Electrical Solutions', 'Customised Management System'],
+    relatedServices: [
+      'Autonomous Robots for Logistics & Material Handling',
+      'Industrial Automation Solutions',
+      'Electrical Solutions',
+      'Customised Management System'
+    ],
     isActive: true,
-    order: 8
+    order: 8,
+    displayOrder: 8
   },
   {
     id: 'ind-9',
     name: 'Logistics & Warehousing',
     slug: 'logistics-and-warehousing',
-    description: 'Autonomous mobile transport fleets, automated sortation conveyor controls, WMS integration, and smart dock monitoring.',
-    image: "/images/robotics_smart_plant.jpg",
+    description:
+      'Autonomous mobile transport fleets, automated sortation conveyor controls, WMS integration, and smart dock monitoring.',
+    image: '/images/robotics_smart_plant.jpg',
     iconName: 'Truck',
     challenges: [
       'High labor costs and operator turnover in repetitive pallet transport',
@@ -497,73 +675,15 @@ export const initialIndustries: IndustryItem[] = [
       'Real-time Warehouse Management System (WMS) integration with ERP',
       'Energy-efficient lighting and BMS controls for high-bay fulfillment centers'
     ],
-    relatedServices: ['Autonomous Robots for Logistics & Material Handling', 'CRM & ERP Solutions', 'Industry 4.0 & IIoT Solutions', 'Mobile Application Development'],
+    relatedServices: [
+      'Autonomous Robots for Logistics & Material Handling',
+      'CRM & ERP Solutions',
+      'Industry 4.0 & IIoT Solutions',
+      'Mobile Application Development'
+    ],
     isActive: true,
-    order: 9
-  }
-];
-
-export const initialProjects: ProjectItem[] = [
-  {
-    id: 'proj-1',
-    title: 'Turnkey PLC & SCADA Revamp for 1.2 MTPA Sinter Plant',
-    slug: 'turnkey-plc-scada-sinter-plant',
-    shortDescription: 'Modernization of legacy control system with redundant Siemens S7-1500 PLC and plant-wide WinCC SCADA.',
-    fullDescription: 'AMM Automation executed a comprehensive control system retrofit for a 1.2 MTPA blast furnace sinter plant. The scope encompassed migrating legacy obsolete relays and micro-controllers to a high-availability dual Siemens S7-1500 PLC architecture, integrating 1,800+ field I/Os, redundant fiber-optic Profinet networking, and an intuitive WinCC SCADA interface with historical trending and recipe management. The project achieved a 14% improvement in plant uptime and eliminated cold restart delays.',
-    featuredImage: "/images/hero_automation.jpg",
-    gallery: [
-      '/images/hero_automation.jpg',
-      '/images/hero_automation.jpg'
-    ],
-    industry: 'Steel Industry',
-    services: ['Industrial Automation Solutions', 'Process Instruments'],
-    technologies: ['Siemens S7-1500', 'WinCC SCADA', 'Profinet', 'HART Field Transmitters'],
-    status: 'Completed',
-    clientType: 'Integrated Steel Plant',
-    location: 'Eastern Industrial Corridor, India',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-01-15T00:00:00.000Z'
-  },
-  {
-    id: 'proj-2',
-    title: 'High-Temperature Process Instrumentation & Thermal Imaging System',
-    slug: 'high-temp-process-instrumentation-furnace',
-    shortDescription: 'Deployment of specialized duplex thermocouples and continuous thermal imaging cameras on re-heating furnaces.',
-    fullDescription: 'Engineered and commissioned a precision temperature profiling and thermal imaging diagnostic system on two continuous billet reheating furnaces. The solution included 48 duplex Type-S ceramic thermowell thermocouples connected via Hart multiplexers to the main DCS, coupled with non-contact infrared thermal imaging for outer shell refractory integrity monitoring. Enabled exact zone temperature regulation, reducing fuel gas consumption by 6.8%.',
-    featuredImage: "/images/metal_plant.jpg",
-    gallery: [
-      '/images/hero_automation.jpg'
-    ],
-    industry: 'Steel Industry',
-    services: ['Process Instruments', 'Industry 4.0 & IIoT Solutions'],
-    technologies: ['Type S Duplex Thermocouples', 'IR Thermal Imaging', 'HART Multiplexer', 'Modbus TCP'],
-    status: 'Completed',
-    clientType: 'Special Alloy Producer',
-    location: 'Jharkhand, India',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-02-01T00:00:00.000Z'
-  },
-  {
-    id: 'proj-3',
-    title: 'Autonomous Mobile Robot (AMR) Fleet for Warehouse Line-Side Transit',
-    slug: 'autonomous-amr-fleet-warehouse',
-    shortDescription: 'Implementation of LiDAR SLAM autonomous mobile robots handling 1,200 kg pallet transfer in automotive assembly.',
-    fullDescription: 'Supplied and commissioned a fleet of 4 natural-navigation LiDAR SLAM Autonomous Mobile Robots (AMRs) for line-side pallet feeding in an automotive tier-1 manufacturing plant. AMRs communicate with plant MES via Wi-Fi 6, autonomously navigating narrow shop aisles, dynamically avoiding human operators, and auto-docking into fast-charging stations. Replaced 3 diesel forklifts and achieved zero safety near-misses over 12 months.',
-    featuredImage: "/images/robotics_smart_plant.jpg",
-    gallery: [
-      '/images/hero_automation.jpg'
-    ],
-    industry: 'Automotive',
-    services: ['Autonomous Robots for Logistics & Material Handling', 'Customised Management System'],
-    technologies: ['LiDAR SLAM Navigation', 'Fleet Dispatch Controller', 'PLC Safety Interlocks', 'REST API / MES Integration'],
-    status: 'Completed',
-    clientType: 'Tier-1 Automotive OEM',
-    location: 'Industrial Hub, India',
-    completionYear: '2024',
-    isFeatured: true,
-    createdAt: '2025-02-20T00:00:00.000Z'
+    order: 9,
+    displayOrder: 9
   }
 ];
 
@@ -573,11 +693,13 @@ export const initialEnquiries: EnquiryItem[] = [
     name: 'Rajesh Sharma',
     companyName: 'Bokaro Engineering & Alloys Ltd.',
     email: 'rajesh.sharma@bokaroeng.com',
-    phone: '+91 9876xxxxxx',
+    phone: '+91 9876543210',
     subject: 'Enquiry for 355kW Motor Rewinding and Vibration Balancing',
     service: 'Electrical Solutions',
-    message: 'We have two 355kW 6.6kV cooling water pump motors requiring complete stator rewinding (Class H) and rotor dynamic balancing during our upcoming shutdown. Kindly send technical capability profile and quotation.',
-    status: 'New',
+    serviceInterest: 'Electrical Solutions',
+    message:
+      'We have two 355kW 6.6kV cooling water pump motors requiring complete stator rewinding (Class H) and rotor dynamic balancing during our upcoming shutdown. Kindly send technical capability profile and quotation.',
+    status: 'new',
     createdAt: '2025-02-28T10:15:00.000Z'
   },
   {
@@ -588,9 +710,67 @@ export const initialEnquiries: EnquiryItem[] = [
     phone: '+91 9431102938',
     subject: 'Kiln Temperature Monitoring and Radar Level Transmitters',
     service: 'Process Instruments',
-    message: 'Interested in upgrading our clinker cooler temperature sensors and raw meal silo radar level transmitters. Please share product datasheet and arrange a technical call.',
-    status: 'Contacted',
+    serviceInterest: 'Process Instruments',
+    message:
+      'Interested in upgrading our clinker cooler temperature sensors and raw meal silo radar level transmitters. Please share product datasheet and arrange a technical call.',
+    status: 'contacted',
+    adminNotes: 'Called client on 01-March. Shared instrumentation catalogue. Site visit planned.',
     notes: 'Called client on 01-March. Shared instrumentation catalogue. Site visit planned.',
     createdAt: '2025-03-01T14:30:00.000Z'
+  }
+];
+
+export const initialQuotes: QuoteRequestItem[] = [
+  {
+    id: 'quote-1',
+    name: 'Mahesh Verma',
+    email: 'm.verma@easternmetallics.in',
+    phone: '+91 9835012345',
+    companyName: 'Eastern Metallics & Steel Pvt Ltd',
+    industry: 'Steel Industry',
+    requiredService: 'Industrial Automation Solutions',
+    projectDescription:
+      'Complete turnkey automation revamp for 6-strand continuous billet casting line. Scope includes dual redundant Siemens S7-1500 PLC, WinCC SCADA desk, and 12 VFD panels for mould oscillation and withdrawal.',
+    estimatedBudget: '₹25,00,000 - ₹50,00,000',
+    preferredContactMethod: 'phone',
+    status: 'reviewing',
+    adminNotes: 'Preliminary engineering BOM review underway by senior controls engineer.',
+    createdAt: '2025-03-02T11:00:00.000Z'
+  }
+];
+
+export const initialTestimonials: TestimonialItem[] = [
+  {
+    id: 'test-1',
+    clientName: 'S. K. Mukherjee',
+    company: 'Jamshedpur Heavy Engineering Corp',
+    designation: 'General Manager - Maintenance',
+    testimonial:
+      'AMM Automation executed emergency rewinding and dynamic balancing of our critical 450 kW cooling water pump motor within a record 48-hour shutdown window. Exceptional technical expertise and workmanship.',
+    rating: 5,
+    isActive: true,
+    displayOrder: 1,
+    createdAt: '2025-01-20T00:00:00.000Z'
+  },
+  {
+    id: 'test-2',
+    clientName: 'Vikramaditya Roy',
+    company: 'East India Alloy Steel Ltd',
+    designation: 'Head of Automation & Electrical',
+    testimonial:
+      'Their PLC SCADA architecture and LOTO safety integration on our rolling mill line has drastically reduced downtime and eliminated operator safety blindspots. Highly recommended engineering partner.',
+    rating: 5,
+    isActive: true,
+    displayOrder: 2,
+    createdAt: '2025-02-15T00:00:00.000Z'
+  }
+];
+
+export const initialSubscribers: NewsletterSubscriberItem[] = [
+  {
+    id: 'sub-1',
+    email: 'plant.operations@steeldynamics.com',
+    isSubscribed: true,
+    subscribedAt: '2025-01-05T00:00:00.000Z'
   }
 ];

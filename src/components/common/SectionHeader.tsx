@@ -25,16 +25,16 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
         </span>
       )}
       <h2
-        className={`text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight ${
-          dark ? 'text-white' : 'text-[#0A192F]'
+        className={`text-fluid-h2 font-bold tracking-tight ${
+          dark ? 'text-white' : 'text-[#0A192F] dark:text-white'
         }`}
       >
         {title}
       </h2>
       {subtitle && (
         <p
-          className={`mt-3 text-sm sm:text-base leading-relaxed ${
-            dark ? 'text-slate-300 font-light' : 'text-slate-500'
+          className={`mt-3 text-fluid-body leading-relaxed ${
+            dark ? 'text-slate-300 font-light' : 'text-slate-600 dark:text-slate-300'
           }`}
         >
           {subtitle}
@@ -42,7 +42,7 @@ export const SectionHeader: React.FC<SectionHeaderProps> = ({
       )}
       <div className={`mt-4 flex items-center gap-1.5 ${isCentered ? 'justify-center' : ''}`}>
         <div className="w-10 h-1 bg-[#F27D26]" />
-        <div className="w-4 h-1 bg-[#0A192F] dark:bg-white" />
+        <div className={`w-4 h-1 ${dark ? 'bg-white' : 'bg-[#0A192F] dark:bg-slate-400'}`} />
       </div>
     </div>
   );

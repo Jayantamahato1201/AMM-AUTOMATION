@@ -1,21 +1,24 @@
 import {
   ServiceItem,
   IndustryItem,
-  ProjectItem,
+  PartnerCompanyItem,
   EnquiryItem,
+  QuoteRequestItem,
+  TestimonialItem,
+  NewsletterSubscriberItem,
   WebsiteContent,
   AdminUser
 } from '../types.js';
 import {
   initialServices,
   initialIndustries,
-  initialProjects,
+  initialPartners,
   initialWebsiteContent
 } from '../data/initialData.js';
 
 const API_BASE = '/api';
 
-function getAuthHeaders() {
+function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('amm_admin_token');
   return {
     'Content-Type': 'application/json',
@@ -23,7 +26,7 @@ function getAuthHeaders() {
   };
 }
 
-// LocalStorage helpers for resilient fallback storage
+// LocalStorage helpers for resilient offline/caching fallback
 function getLocalItem<T>(key: string, fallback: T): T {
   try {
     const item = localStorage.getItem(key);
@@ -37,71 +40,172 @@ function setLocalItem<T>(key: string, value: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (err) {
-    console.warn('LocalStorage save failed:', err);
+    console.warn('[Cache] LocalStorage save failed:', err);
   }
 }
 
-export const api = {
-  // Auth
-  async login(email: string, password: string): Promise<{ token: string; user: AdminUser }> {
+// Safely parse JSON from a fetch Response, avoiding "Unexpected token <" HTML errors
+async function parseJsonSafely<T>(res: Response, fallbackError: string): Promise<T> {
+  const contentType = res.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
+      const data = await res.json();
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: 'Login failed' }));
-        throw new Error(err.error || 'Login failed');
+        throw new Error(data?.error || fallbackError);
       }
-      return res.json();
+      return data as T;
     } catch (err: any) {
-      // Fallback for offline / demo admin login
-      if (email === 'admin@ammautomation.com' && password === 'Admin@12345') {
-        const mockUser: AdminUser = {
-          id: 'admin-1',
-          name: 'AMM Automation Administrator',
-          email: 'admin@ammautomation.com',
-          role: 'superadmin'
-        };
-        const token = 'amm-admin-demo-token';
-        localStorage.setItem('amm_admin_token', token);
-        return { token, user: mockUser };
+      if (err.message && !err.message.includes('Unexpected token')) {
+        throw err;
       }
-      throw err;
+      throw new Error(fallbackError);
     }
+  }
+
+  // Handle non-JSON response (e.g. HTML 404/500)
+  if (!res.ok) {
+    throw new Error(`${fallbackError} (${res.status})`);
+  }
+  throw new Error(`${fallbackError}: Received non-JSON response format.`);
+}
+
+export interface AISolutionAdviceResult {
+  success: boolean;
+  source: 'gemini' | 'rule-engine';
+  recommendation: string;
+  recommendedServices: string[];
+  suggestedSafetyLevel: string;
+  keyConsiderations: string[];
+}
+
+export const api = {
+  // --- Auth ---
+  async login(email: string, password: string): Promise<{ token: string; refreshToken?: string; user: AdminUser }> {
+    const res = await fetch(`${API_BASE}/auth/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await parseJsonSafely<{ token: string; refreshToken?: string; user: AdminUser; error?: string }>(
+      res,
+      'Authentication failed. Please check credentials.'
+    );
+
+    if (data.token) {
+      localStorage.setItem('amm_admin_token', data.token);
+      if (data.refreshToken) {
+        localStorage.setItem('amm_admin_refresh_token', data.refreshToken);
+      }
+    }
+    return data;
   },
 
   async getMe(): Promise<{ user: AdminUser }> {
+    const res = await fetch(`${API_BASE}/auth/me`, {
+      headers: getAuthHeaders()
+    });
+    return parseJsonSafely<{ user: AdminUser }>(res, 'Unauthorized');
+  },
+
+  async updatePassword(currentPassword: string, newPassword: string): Promise<{ message: string }> {
+    const res = await fetch(`${API_BASE}/auth/password`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    return parseJsonSafely<{ message: string }>(res, 'Failed to update password.');
+  },
+
+  logout(): void {
+    localStorage.removeItem('amm_admin_token');
+    localStorage.removeItem('amm_admin_refresh_token');
+  },
+
+  // --- Health Check ---
+  async getHealth(): Promise<{ status: string; uptimeSeconds: number; database: any }> {
+    const res = await fetch(`${API_BASE}/health`);
+    return parseJsonSafely(res, 'Health check failed');
+  },
+
+  // --- Partner Companies ---
+  async getPartners(all = false): Promise<PartnerCompanyItem[]> {
     try {
-      const res = await fetch(`${API_BASE}/auth/me`, {
-        headers: getAuthHeaders()
-      });
-      if (!res.ok) throw new Error('Unauthorized');
-      return res.json();
-    } catch {
-      return {
-        user: {
-          id: 'admin-1',
-          name: 'AMM Automation Administrator',
-          email: 'admin@ammautomation.com',
-          role: 'superadmin'
+      const url = all ? `${API_BASE}/partners?all=true` : `${API_BASE}/partners`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await parseJsonSafely<PartnerCompanyItem[]>(res, 'Failed to parse partners');
+        if (Array.isArray(data)) {
+          setLocalItem('amm_partners_cache', data);
+          return data;
         }
-      };
+      }
+    } catch (err) {
+      console.warn('[API] /api/partners fetch failed, using cached or initial partners:', err);
+    }
+    return getLocalItem('amm_partners_cache', initialPartners);
+  },
+
+  async getPartnerBySlug(idOrSlug: string): Promise<PartnerCompanyItem> {
+    try {
+      const res = await fetch(`${API_BASE}/partners/${encodeURIComponent(idOrSlug)}`);
+      if (res.ok) {
+        return await parseJsonSafely<PartnerCompanyItem>(res, 'Failed to parse partner details');
+      }
+    } catch (err) {
+      console.warn(`[API] /api/partners/${idOrSlug} fetch failed:`, err);
+    }
+    const partners = await this.getPartners(true);
+    const found = partners.find(
+      p => p.slug.toLowerCase() === idOrSlug.toLowerCase() || p.id === idOrSlug
+    );
+    if (!found) throw new Error('Partner company record not found.');
+    return found;
+  },
+
+  async createPartner(data: Partial<PartnerCompanyItem>): Promise<PartnerCompanyItem> {
+    const res = await fetch(`${API_BASE}/partners`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<PartnerCompanyItem>(res, 'Failed to create partner company.');
+  },
+
+  async updatePartner(id: string, data: Partial<PartnerCompanyItem>): Promise<PartnerCompanyItem> {
+    const res = await fetch(`${API_BASE}/partners/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<PartnerCompanyItem>(res, 'Failed to update partner company.');
+  },
+
+  async deletePartner(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/partners/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete partner company.').catch(() => ({ error: 'Failed to delete partner company.' }));
+      throw new Error(err.error || 'Failed to delete partner company.');
     }
   },
 
-  // Services
-  async getServices(): Promise<ServiceItem[]> {
+  // --- Services / Solutions ---
+  async getServices(all = false): Promise<ServiceItem[]> {
     try {
-      const res = await fetch(`${API_BASE}/services`);
+      const url = all ? `${API_BASE}/services?all=true` : `${API_BASE}/services`;
+      const res = await fetch(url);
       if (res.ok) {
-        const data = await res.json();
-        setLocalItem('amm_services_cache', data);
-        return data;
+        const data = await parseJsonSafely<ServiceItem[]>(res, 'Failed to parse services');
+        if (Array.isArray(data)) {
+          setLocalItem('amm_services_cache', data);
+          return data;
+        }
       }
     } catch (err) {
-      console.warn('Backend /api/services unavailable, using cached/initial data');
+      console.warn('[API] /api/services unavailable, using local cache fallback');
     }
     return getLocalItem('amm_services_cache', initialServices);
   },
@@ -109,101 +213,61 @@ export const api = {
   async getServiceBySlug(slug: string): Promise<ServiceItem> {
     try {
       const res = await fetch(`${API_BASE}/services/${slug}`);
-      if (res.ok) return res.json();
+      if (res.ok) {
+        return await parseJsonSafely<ServiceItem>(res, 'Service solution not found');
+      }
     } catch (err) {
-      console.warn(`Backend /api/services/${slug} unavailable, using local lookup`);
+      console.warn(`[API] /api/services/${slug} fetch error, checking local dataset`);
     }
-    const services = await this.getServices();
-    const found = services.find(s => s.slug === slug);
-    if (!found) throw new Error('Service not found');
+    const services = await this.getServices(true);
+    const found = services.find(s => s.slug.toLowerCase() === slug.toLowerCase() || s.id === slug);
+    if (!found) throw new Error('Service solution not found.');
     return found;
   },
 
   async createService(data: Partial<ServiceItem>): Promise<ServiceItem> {
-    try {
-      const res = await fetch(`${API_BASE}/services`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const newService = await res.json();
-        const cached = await this.getServices();
-        setLocalItem('amm_services_cache', [newService, ...cached]);
-        return newService;
-      }
-    } catch (err) {
-      console.warn('Backend createService offline, saving locally');
-    }
-    const newService: ServiceItem = {
-      id: `srv-${Date.now()}`,
-      title: data.title || 'Untitled Service',
-      slug: data.slug || `service-${Date.now()}`,
-      shortDescription: data.shortDescription || '',
-      fullDescription: data.fullDescription || data.shortDescription || '',
-      image: data.image || '/images/hero_automation.jpg',
-      iconName: data.iconName || 'Cpu',
-      features: data.features || [],
-      applications: data.applications || [],
-      relatedIndustries: data.relatedIndustries || [],
-      subOfferings: data.subOfferings || [],
-      isActive: data.isActive !== undefined ? data.isActive : true,
-      order: data.order || 99,
-      createdAt: new Date().toISOString()
-    };
-    const cached = await this.getServices();
-    setLocalItem('amm_services_cache', [newService, ...cached]);
-    return newService;
+    const res = await fetch(`${API_BASE}/services`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<ServiceItem>(res, 'Failed to create service.');
   },
 
   async updateService(id: string, data: Partial<ServiceItem>): Promise<ServiceItem> {
-    try {
-      const res = await fetch(`${API_BASE}/services/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        const cached = await this.getServices();
-        setLocalItem('amm_services_cache', cached.map(s => s.id === id ? updated : s));
-        return updated;
-      }
-    } catch (err) {
-      console.warn('Backend updateService offline, updating locally');
-    }
-    const cached = await this.getServices();
-    const updatedList = cached.map(s => s.id === id ? { ...s, ...data, updatedAt: new Date().toISOString() } : s);
-    setLocalItem('amm_services_cache', updatedList);
-    const updated = updatedList.find(s => s.id === id);
-    if (!updated) throw new Error('Service not found');
-    return updated;
+    const res = await fetch(`${API_BASE}/services/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<ServiceItem>(res, 'Failed to update service.');
   },
 
   async deleteService(id: string): Promise<void> {
-    try {
-      await fetch(`${API_BASE}/services/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-    } catch {
-      console.warn('Backend deleteService offline, removing locally');
+    const res = await fetch(`${API_BASE}/services/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete service.').catch(() => ({ error: 'Failed to delete service.' }));
+      throw new Error(err.error || 'Failed to delete service.');
     }
-    const cached = await this.getServices();
-    setLocalItem('amm_services_cache', cached.filter(s => s.id !== id));
   },
 
-  // Industries
-  async getIndustries(): Promise<IndustryItem[]> {
+  // --- Industries ---
+  async getIndustries(all = false): Promise<IndustryItem[]> {
     try {
-      const res = await fetch(`${API_BASE}/industries`);
+      const url = all ? `${API_BASE}/industries?all=true` : `${API_BASE}/industries`;
+      const res = await fetch(url);
       if (res.ok) {
-        const data = await res.json();
-        setLocalItem('amm_industries_cache', data);
-        return data;
+        const data = await parseJsonSafely<IndustryItem[]>(res, 'Failed to parse industries');
+        if (Array.isArray(data)) {
+          setLocalItem('amm_industries_cache', data);
+          return data;
+        }
       }
     } catch (err) {
-      console.warn('Backend /api/industries unavailable, using cached/initial data');
+      console.warn('[API] /api/industries unavailable, using local cache fallback');
     }
     return getLocalItem('amm_industries_cache', initialIndustries);
   },
@@ -211,192 +275,70 @@ export const api = {
   async getIndustryBySlug(slug: string): Promise<IndustryItem> {
     try {
       const res = await fetch(`${API_BASE}/industries/${slug}`);
-      if (res.ok) return res.json();
+      if (res.ok) {
+        return await parseJsonSafely<IndustryItem>(res, 'Industry domain profile not found');
+      }
     } catch (err) {
-      console.warn(`Backend /api/industries/${slug} unavailable, using local lookup`);
+      console.warn(`[API] /api/industries/${slug} unavailable, using local lookup`);
     }
-    const industries = await this.getIndustries();
-    const found = industries.find(i => i.slug === slug);
-    if (!found) throw new Error('Industry not found');
+    const industries = await this.getIndustries(true);
+    const found = industries.find(i => i.slug.toLowerCase() === slug.toLowerCase() || i.id === slug);
+    if (!found) throw new Error('Industry domain profile not found.');
     return found;
   },
 
   async createIndustry(data: Partial<IndustryItem>): Promise<IndustryItem> {
-    try {
-      const res = await fetch(`${API_BASE}/industries`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const newInd = await res.json();
-        const cached = await this.getIndustries();
-        setLocalItem('amm_industries_cache', [newInd, ...cached]);
-        return newInd;
-      }
-    } catch (err) {
-      console.warn('Backend createIndustry offline, saving locally');
-    }
-    const newInd: IndustryItem = {
-      id: `ind-${Date.now()}`,
-      name: data.name || 'Untitled Industry',
-      slug: data.slug || `industry-${Date.now()}`,
-      description: data.description || '',
-      image: data.image || '/images/metal_plant.jpg',
-      iconName: data.iconName || 'Factory',
-      challenges: data.challenges || [],
-      solutions: data.solutions || [],
-      relatedServices: data.relatedServices || [],
-      isActive: data.isActive !== undefined ? data.isActive : true,
-      order: data.order || 99
-    };
-    const cached = await this.getIndustries();
-    setLocalItem('amm_industries_cache', [newInd, ...cached]);
-    return newInd;
+    const res = await fetch(`${API_BASE}/industries`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<IndustryItem>(res, 'Failed to create industry.');
   },
 
   async updateIndustry(id: string, data: Partial<IndustryItem>): Promise<IndustryItem> {
-    try {
-      const res = await fetch(`${API_BASE}/industries/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        const cached = await this.getIndustries();
-        setLocalItem('amm_industries_cache', cached.map(i => i.id === id ? updated : i));
-        return updated;
-      }
-    } catch (err) {
-      console.warn('Backend updateIndustry offline, updating locally');
-    }
-    const cached = await this.getIndustries();
-    const updatedList = cached.map(i => i.id === id ? { ...i, ...data } : i);
-    setLocalItem('amm_industries_cache', updatedList);
-    const updated = updatedList.find(i => i.id === id);
-    if (!updated) throw new Error('Industry not found');
-    return updated;
+    const res = await fetch(`${API_BASE}/industries/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<IndustryItem>(res, 'Failed to update industry.');
   },
 
   async deleteIndustry(id: string): Promise<void> {
-    try {
-      await fetch(`${API_BASE}/industries/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-    } catch {
-      console.warn('Backend deleteIndustry offline, removing locally');
+    const res = await fetch(`${API_BASE}/industries/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete industry.').catch(() => ({ error: 'Failed to delete industry.' }));
+      throw new Error(err.error || 'Failed to delete industry.');
     }
-    const cached = await this.getIndustries();
-    setLocalItem('amm_industries_cache', cached.filter(i => i.id !== id));
   },
 
-  // Projects
-  async getProjects(): Promise<ProjectItem[]> {
-    try {
-      const res = await fetch(`${API_BASE}/projects`);
-      if (res.ok) {
-        const data = await res.json();
-        setLocalItem('amm_projects_cache', data);
-        return data;
-      }
-    } catch (err) {
-      console.warn('Backend /api/projects unavailable, using cached/initial data');
-    }
-    return getLocalItem('amm_projects_cache', initialProjects);
+  // --- Contact Inquiries ---
+  async submitContactInquiry(data: {
+    name: string;
+    companyName?: string;
+    email: string;
+    phone: string;
+    subject?: string;
+    service?: string;
+    serviceInterest?: string;
+    message: string;
+  }): Promise<{ message: string; inquiryId?: string; id?: string }> {
+    const res = await fetch(`${API_BASE}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<{ message: string; inquiryId?: string; id?: string }>(
+      res,
+      'Failed to submit contact message. Please check inputs.'
+    );
   },
 
-  async getProjectBySlug(slug: string): Promise<ProjectItem> {
-    try {
-      const res = await fetch(`${API_BASE}/projects/${slug}`);
-      if (res.ok) return res.json();
-    } catch (err) {
-      console.warn(`Backend /api/projects/${slug} unavailable, using local lookup`);
-    }
-    const projects = await this.getProjects();
-    const found = projects.find(p => p.slug === slug);
-    if (!found) throw new Error('Project not found');
-    return found;
-  },
-
-  async createProject(data: Partial<ProjectItem>): Promise<ProjectItem> {
-    try {
-      const res = await fetch(`${API_BASE}/projects`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const newProj = await res.json();
-        const cached = await this.getProjects();
-        setLocalItem('amm_projects_cache', [newProj, ...cached]);
-        return newProj;
-      }
-    } catch (err) {
-      console.warn('Backend createProject offline, saving locally');
-    }
-    const newProj: ProjectItem = {
-      id: `proj-${Date.now()}`,
-      title: data.title || 'Untitled Project',
-      slug: data.slug || `project-${Date.now()}`,
-      shortDescription: data.shortDescription || '',
-      fullDescription: data.fullDescription || data.shortDescription || '',
-      featuredImage: data.featuredImage || '/images/hero_automation.jpg',
-      gallery: data.gallery || [],
-      industry: data.industry || 'Steel Industry',
-      services: data.services || [],
-      technologies: data.technologies || [],
-      status: data.status || 'Completed',
-      clientType: data.clientType || 'Industrial Enterprise',
-      location: data.location || 'India',
-      completionYear: data.completionYear || new Date().getFullYear().toString(),
-      isFeatured: data.isFeatured || false,
-      createdAt: new Date().toISOString()
-    };
-    const cached = await this.getProjects();
-    setLocalItem('amm_projects_cache', [newProj, ...cached]);
-    return newProj;
-  },
-
-  async updateProject(id: string, data: Partial<ProjectItem>): Promise<ProjectItem> {
-    try {
-      const res = await fetch(`${API_BASE}/projects/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        const cached = await this.getProjects();
-        setLocalItem('amm_projects_cache', cached.map(p => p.id === id ? updated : p));
-        return updated;
-      }
-    } catch (err) {
-      console.warn('Backend updateProject offline, updating locally');
-    }
-    const cached = await this.getProjects();
-    const updatedList = cached.map(p => p.id === id ? { ...p, ...data } : p);
-    setLocalItem('amm_projects_cache', updatedList);
-    const updated = updatedList.find(p => p.id === id);
-    if (!updated) throw new Error('Project not found');
-    return updated;
-  },
-
-  async deleteProject(id: string): Promise<void> {
-    try {
-      await fetch(`${API_BASE}/projects/${id}`, {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-    } catch {
-      console.warn('Backend deleteProject offline, removing locally');
-    }
-    const cached = await this.getProjects();
-    setLocalItem('amm_projects_cache', cached.filter(p => p.id !== id));
-  },
-
-  // Enquiries
+  // Legacy alias
   async submitEnquiry(data: {
     name: string;
     companyName?: string;
@@ -405,154 +347,278 @@ export const api = {
     subject?: string;
     service?: string;
     message: string;
-  }): Promise<{ message: string; enquiryId: string }> {
-    try {
-      const res = await fetch(`${API_BASE}/enquiries`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        return res.json();
-      }
-    } catch (err) {
-      console.warn('Backend submitEnquiry offline, recording locally');
-    }
-    const newEnquiry: EnquiryItem = {
-      id: `enq-${Date.now()}`,
-      name: data.name,
-      companyName: data.companyName || 'Not specified',
-      email: data.email,
-      phone: data.phone,
-      subject: data.subject || 'Industrial Automation Enquiry',
-      service: data.service || 'General Enquiry',
-      message: data.message,
-      status: 'New',
-      createdAt: new Date().toISOString()
-    };
-    const cached = getLocalItem<EnquiryItem[]>('amm_enquiries_cache', []);
-    setLocalItem('amm_enquiries_cache', [newEnquiry, ...cached]);
-    return {
-      message: 'Thank you! Your enquiry has been received. An AMM Automation technical specialist will contact you shortly.',
-      enquiryId: newEnquiry.id
-    };
+  }): Promise<{ message: string; enquiryId?: string }> {
+    return this.submitContactInquiry(data) as any;
   },
 
-  async getEnquiries(): Promise<EnquiryItem[]> {
+  async getInquiries(): Promise<EnquiryItem[]> {
     try {
-      const res = await fetch(`${API_BASE}/enquiries`, {
+      const res = await fetch(`${API_BASE}/contact`, {
         headers: getAuthHeaders()
       });
       if (res.ok) {
-        const data = await res.json();
-        setLocalItem('amm_enquiries_cache', data);
-        return data;
+        const data = await parseJsonSafely<EnquiryItem[]>(res, 'Failed to parse inquiries');
+        if (Array.isArray(data)) return data;
       }
     } catch (err) {
-      console.warn('Backend /api/enquiries unavailable, using cached data');
+      console.warn('[API] /api/contact fetch inquiries error:', err);
     }
-    return getLocalItem('amm_enquiries_cache', []);
+    return [];
   },
 
-  async updateEnquiry(id: string, data: Partial<EnquiryItem>): Promise<EnquiryItem> {
-    try {
-      const res = await fetch(`${API_BASE}/enquiries/${id}`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) return res.json();
-    } catch {
-      console.warn('Backend updateEnquiry offline');
-    }
-    const cached = getLocalItem<EnquiryItem[]>('amm_enquiries_cache', []);
-    const updatedList = cached.map(e => e.id === id ? { ...e, ...data } : e);
-    setLocalItem('amm_enquiries_cache', updatedList);
-    const found = updatedList.find(e => e.id === id);
-    if (!found) throw new Error('Enquiry not found');
-    return found;
+  async updateInquiry(id: string, data: Partial<EnquiryItem>): Promise<EnquiryItem> {
+    const res = await fetch(`${API_BASE}/contact/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<EnquiryItem>(res, 'Failed to update inquiry.');
   },
 
-  async deleteEnquiry(id: string): Promise<void> {
+  async deleteInquiry(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/contact/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete inquiry.').catch(() => ({ error: 'Failed to delete inquiry.' }));
+      throw new Error(err.error || 'Failed to delete inquiry.');
+    }
+  },
+
+  // --- Quote Requests (RFQs) ---
+  async submitQuoteRequest(data: {
+    name: string;
+    email: string;
+    phone: string;
+    companyName?: string;
+    industry?: string;
+    requiredService: string;
+    projectDescription: string;
+    estimatedBudget?: string;
+    preferredContactMethod?: 'email' | 'phone' | 'whatsapp';
+  }): Promise<{ message: string; quoteId?: string; id?: string }> {
+    const res = await fetch(`${API_BASE}/quotes`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<{ message: string; quoteId?: string; id?: string }>(
+      res,
+      'Failed to submit quote request.'
+    );
+  },
+
+  async getQuotes(): Promise<QuoteRequestItem[]> {
     try {
-      await fetch(`${API_BASE}/enquiries/${id}`, {
-        method: 'DELETE',
+      const res = await fetch(`${API_BASE}/quotes`, {
         headers: getAuthHeaders()
       });
-    } catch {
-      console.warn('Backend deleteEnquiry offline');
-    }
-    const cached = getLocalItem<EnquiryItem[]>('amm_enquiries_cache', []);
-    setLocalItem('amm_enquiries_cache', cached.filter(e => e.id !== id));
-  },
-
-  // Website Content
-  async getContent(): Promise<WebsiteContent> {
-    try {
-      const res = await fetch(`${API_BASE}/content`);
       if (res.ok) {
-        const data = await res.json();
-        setLocalItem('amm_content_cache', data);
-        return data;
+        const data = await parseJsonSafely<QuoteRequestItem[]>(res, 'Failed to parse quotes');
+        if (Array.isArray(data)) return data;
       }
     } catch (err) {
-      console.warn('Backend /api/content unavailable, using cached/initial content');
+      console.warn('[API] /api/quotes fetch error:', err);
+    }
+    return [];
+  },
+
+  async updateQuote(id: string, data: Partial<QuoteRequestItem>): Promise<QuoteRequestItem> {
+    const res = await fetch(`${API_BASE}/quotes/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<QuoteRequestItem>(res, 'Failed to update quote.');
+  },
+
+  async deleteQuote(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/quotes/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) {
+      const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete quote.').catch(() => ({ error: 'Failed to delete quote.' }));
+      throw new Error(err.error || 'Failed to delete quote.');
+    }
+  },
+
+  // --- Testimonials ---
+  async getTestimonials(all = false): Promise<TestimonialItem[]> {
+    try {
+      const url = all ? `${API_BASE}/testimonials?all=true` : `${API_BASE}/testimonials`;
+      const res = await fetch(url);
+      if (res.ok) {
+        const data = await parseJsonSafely<TestimonialItem[]>(res, 'Failed to parse testimonials');
+        if (Array.isArray(data)) return data;
+      }
+    } catch (err) {
+      console.warn('[API] /api/testimonials fetch failed:', err);
+    }
+    return [];
+  },
+
+  async createTestimonial(data: Partial<TestimonialItem>): Promise<TestimonialItem> {
+    const res = await fetch(`${API_BASE}/testimonials`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<TestimonialItem>(res, 'Failed to create testimonial.');
+  },
+
+  async updateTestimonial(id: string, data: Partial<TestimonialItem>): Promise<TestimonialItem> {
+    const res = await fetch(`${API_BASE}/testimonials/${id}`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    return parseJsonSafely<TestimonialItem>(res, 'Failed to update testimonial.');
+  },
+
+  async deleteTestimonial(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/testimonials/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete testimonial.');
+  },
+
+  // --- Newsletter ---
+  async subscribeNewsletter(email: string): Promise<{ success: boolean; message: string }> {
+    const res = await fetch(`${API_BASE}/newsletter/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    return parseJsonSafely<{ success: boolean; message: string }>(res, 'Subscription failed.');
+  },
+
+  async getNewsletterSubscribers(): Promise<NewsletterSubscriberItem[]> {
+    const res = await fetch(`${API_BASE}/newsletter/subscribers`, {
+      headers: getAuthHeaders()
+    });
+    return parseJsonSafely<NewsletterSubscriberItem[]>(res, 'Failed to load subscribers.');
+  },
+
+  // --- Image & Media Uploads ---
+  async uploadImage(file: File): Promise<{ url: string; filename: string }> {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    const token = localStorage.getItem('amm_admin_token');
+    const res = await fetch(`${API_BASE}/uploads`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    });
+
+    return parseJsonSafely<{ url: string; filename: string }>(res, 'Image upload failed.');
+  },
+
+  // --- Website Content & Settings ---
+  async getSettings(): Promise<WebsiteContent> {
+    try {
+      const res = await fetch(`${API_BASE}/settings`);
+      if (res.ok) {
+        const data = await parseJsonSafely<WebsiteContent>(res, 'Failed to parse settings');
+        if (data && typeof data === 'object') {
+          setLocalItem('amm_content_cache', data);
+          return data;
+        }
+      }
+    } catch (err) {
+      console.warn('[API] /api/settings unavailable, using cache fallback');
     }
     return getLocalItem('amm_content_cache', initialWebsiteContent);
   },
 
-  async updateContent(data: Partial<WebsiteContent>): Promise<WebsiteContent> {
-    try {
-      const res = await fetch(`${API_BASE}/content`, {
-        method: 'PUT',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(data)
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setLocalItem('amm_content_cache', updated);
-        return updated;
-      }
-    } catch (err) {
-      console.warn('Backend updateContent offline, updating locally');
-    }
-    const current = await this.getContent();
-    const updated = { ...current, ...data };
-    setLocalItem('amm_content_cache', updated);
-    return updated;
+  async getContent(): Promise<WebsiteContent> {
+    return this.getSettings();
   },
 
-  // Stats
+  async updateSettings(data: Partial<WebsiteContent>): Promise<WebsiteContent> {
+    const res = await fetch(`${API_BASE}/settings`, {
+      method: 'PUT',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(data)
+    });
+    const result = await parseJsonSafely<WebsiteContent>(res, 'Failed to update settings.');
+    setLocalItem('amm_content_cache', result);
+    return result;
+  },
+
+  async updateContent(data: Partial<WebsiteContent>): Promise<WebsiteContent> {
+    return this.updateSettings(data);
+  },
+
+  // --- Statistics ---
   async getStats(): Promise<{
     totalServices: number;
     activeServices: number;
     totalIndustries: number;
     activeIndustries: number;
-    totalProjects: number;
-    totalEnquiries: number;
-    newEnquiries: number;
+    totalPartnerCompanies: number;
+    activePartners: number;
+    totalInquiries: number;
+    newInquiries: number;
+    totalQuoteRequests: number;
+    pendingQuoteRequests: number;
+    totalTestimonials: number;
+    totalSubscribers: number;
+    // Legacy compatibility
+    totalEnquiries?: number;
+    newEnquiries?: number;
   }> {
     try {
       const res = await fetch(`${API_BASE}/stats`, {
         headers: getAuthHeaders()
       });
-      if (res.ok) return res.json();
-    } catch {
-      console.warn('Backend /api/stats offline, computing locally');
+      if (res.ok) {
+        const data = await parseJsonSafely<any>(res, 'Failed to parse statistics');
+        if (data && typeof data === 'object') {
+          return data;
+        }
+      }
+    } catch (err) {
+      console.warn('[API] /api/stats fetch failed, calculating from local cache:', err);
     }
-    const services = await this.getServices();
-    const industries = await this.getIndustries();
-    const projects = await this.getProjects();
-    const enquiries = await this.getEnquiries();
+
+    const services = getLocalItem('amm_services_cache', initialServices);
+    const industries = getLocalItem('amm_industries_cache', initialIndustries);
+    const partners = getLocalItem('amm_partners_cache', initialPartners);
 
     return {
       totalServices: services.length,
       activeServices: services.filter(s => s.isActive).length,
       totalIndustries: industries.length,
       activeIndustries: industries.filter(i => i.isActive).length,
-      totalProjects: projects.length,
-      totalEnquiries: enquiries.length,
-      newEnquiries: enquiries.filter(e => e.status === 'New').length
+      totalPartnerCompanies: partners.length,
+      activePartners: partners.filter(p => p.isActive).length,
+      totalInquiries: 0,
+      newInquiries: 0,
+      totalQuoteRequests: 0,
+      pendingQuoteRequests: 0,
+      totalTestimonials: 0,
+      totalSubscribers: 0,
+      totalEnquiries: 0,
+      newEnquiries: 0
     };
+  },
+
+  // --- AI Solution Advisor (Gemini 3.7 Flash) ---
+  async getAISolutionAdvice(params: {
+    query: string;
+    industry?: string;
+    plantType?: string;
+  }): Promise<AISolutionAdviceResult> {
+    const res = await fetch(`${API_BASE}/ai/solution-advisor`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params)
+    });
+
+    return parseJsonSafely<AISolutionAdviceResult>(res, 'AI Advisor unavailable at this time.');
   }
 };

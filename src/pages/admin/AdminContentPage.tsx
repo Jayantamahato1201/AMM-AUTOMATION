@@ -58,12 +58,12 @@ export const AdminContentPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="space-y-6 max-w-5xl transition-colors duration-300">
       {/* Header */}
-      <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-xs flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+      <div className="bg-white dark:bg-[#0A192F] p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col sm:flex-row justify-between sm:items-center gap-4 transition-colors duration-300">
         <div>
-          <h1 className="text-lg font-bold text-slate-900">Website Content Management</h1>
-          <p className="text-xs text-slate-500">
+          <h1 className="text-lg font-bold text-slate-900 dark:text-white">Website Content Management</h1>
+          <p className="text-xs text-slate-500 dark:text-slate-400">
             Edit live copywriting, hero headlines, corporate mission, contact phone, and workshop address.
           </p>
         </div>
@@ -73,14 +73,14 @@ export const AdminContentPage: React.FC = () => {
         <div
           className={`p-3 rounded text-xs flex items-center gap-2 ${
             feedback.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              ? 'bg-emerald-50 dark:bg-emerald-950/70 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'
+              : 'bg-red-50 dark:bg-red-950/70 text-red-800 dark:text-red-300 border border-red-200 dark:border-red-800'
           }`}
         >
           {feedback.type === 'success' ? (
-            <CheckCircle className="w-4 h-4 text-emerald-600" />
+            <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-red-600" />
+            <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400" />
           )}
           <span>{feedback.message}</span>
         </div>
@@ -88,162 +88,162 @@ export const AdminContentPage: React.FC = () => {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* 1. Hero Section Content */}
-        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-xs space-y-4 text-xs">
-          <div className="border-b border-slate-100 pb-2">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-orange-600" />
+        <div className="bg-white dark:bg-[#0A192F] p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs space-y-4 text-xs transition-colors duration-300">
+          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               <span>Hero & Landing Section</span>
             </h3>
-            <p className="text-slate-500 text-[11px]">Controls the primary headline on the homepage banner</p>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px]">Controls the primary headline on the homepage banner</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Company Tagline</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Company Tagline</label>
               <input
                 type="text"
                 value={formData.tagline || ''}
                 onChange={e => setFormData({ ...formData, tagline: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Hero Heading Category Badge</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Hero Heading Category Badge</label>
               <input
                 type="text"
                 value={formData.heroHeading || ''}
                 onChange={e => setFormData({ ...formData, heroHeading: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Hero Main Headline</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Hero Main Headline</label>
             <input
               type="text"
               value={formData.heroSubheading || ''}
               onChange={e => setFormData({ ...formData, heroSubheading: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900 font-bold"
+              className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 font-bold"
             />
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Hero Supporting Description</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Hero Supporting Description</label>
             <textarea
               rows={3}
               value={formData.heroDescription || ''}
               onChange={e => setFormData({ ...formData, heroDescription: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900 leading-relaxed"
+              className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 leading-relaxed"
             />
           </div>
         </div>
 
         {/* 2. About Us Content */}
-        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-xs space-y-4 text-xs">
-          <div className="border-b border-slate-100 pb-2">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-blue-900" />
+        <div className="bg-white dark:bg-[#0A192F] p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs space-y-4 text-xs transition-colors duration-300">
+          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <FileText className="w-4 h-4 text-orange-600 dark:text-orange-400" />
               <span>Company Introduction, Mission & Vision</span>
             </h3>
-            <p className="text-slate-500 text-[11px]">Appears in About Us page and Homepage preview</p>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px]">Appears in About Us page and Homepage preview</p>
           </div>
 
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Company Overview / Introduction</label>
+            <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Company Overview / Introduction</label>
             <textarea
               rows={3}
               value={formData.aboutIntro || ''}
               onChange={e => setFormData({ ...formData, aboutIntro: e.target.value })}
-              className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900 leading-relaxed"
+              className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 leading-relaxed"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Our Mission Statement</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Our Mission Statement</label>
               <textarea
                 rows={3}
                 value={formData.aboutMission || ''}
                 onChange={e => setFormData({ ...formData, aboutMission: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900 leading-relaxed"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 leading-relaxed"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Our Vision Statement</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Our Vision Statement</label>
               <textarea
                 rows={3}
                 value={formData.aboutVision || ''}
                 onChange={e => setFormData({ ...formData, aboutVision: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900 leading-relaxed"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500 leading-relaxed"
               />
             </div>
           </div>
         </div>
 
         {/* 3. Official Contact Info */}
-        <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-xs space-y-4 text-xs">
-          <div className="border-b border-slate-100 pb-2">
-            <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
-              <Phone className="w-4 h-4 text-emerald-600" />
+        <div className="bg-white dark:bg-[#0A192F] p-6 rounded-lg border border-slate-200 dark:border-slate-800 shadow-xs space-y-4 text-xs transition-colors duration-300">
+          <div className="border-b border-slate-200 dark:border-slate-800 pb-2">
+            <h3 className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Phone className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Official Contact & Location Channels</span>
             </h3>
-            <p className="text-slate-500 text-[11px]">Displayed in Navbar, Footer, Contact Page, and Quotation Modals</p>
+            <p className="text-slate-500 dark:text-slate-400 text-[11px]">Displayed in Navbar, Footer, Contact Page, and Quotation Modals</p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Official Email</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Official Email</label>
               <input
                 type="email"
                 value={formData.contactEmail || ''}
                 onChange={e => setFormData({ ...formData, contactEmail: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Phone Number</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Phone Number</label>
               <input
                 type="text"
                 value={formData.contactPhone || ''}
                 onChange={e => setFormData({ ...formData, contactPhone: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">WhatsApp Number (with country code)</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">WhatsApp Number (with country code)</label>
               <input
                 type="text"
                 value={formData.whatsappNumber || ''}
                 onChange={e => setFormData({ ...formData, whatsappNumber: e.target.value })}
                 placeholder="919204673578"
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Office / Works Address</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Office / Works Address</label>
               <input
                 type="text"
                 value={formData.address || ''}
                 onChange={e => setFormData({ ...formData, address: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Operating Hours</label>
+              <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Operating Hours</label>
               <input
                 type="text"
                 value={formData.workingHours || ''}
                 onChange={e => setFormData({ ...formData, workingHours: e.target.value })}
-                className="w-full bg-slate-50 border border-slate-300 rounded px-3 py-2 text-slate-900 focus:outline-none focus:border-blue-900"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
               />
             </div>
           </div>
@@ -254,7 +254,7 @@ export const AdminContentPage: React.FC = () => {
           <button
             type="submit"
             disabled={isSaving}
-            className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold text-xs rounded-md shadow-md flex items-center gap-2 transition-all"
+            className="px-6 py-2.5 bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-bold text-xs rounded-md shadow-md flex items-center gap-2 transition-all cursor-pointer"
           >
             <Save className="w-4 h-4" />
             <span>{isSaving ? 'Updating Site...' : 'Publish Content Updates'}</span>

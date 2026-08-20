@@ -2,21 +2,23 @@ import React, { createContext, useContext, useState, useEffect, useCallback, use
 import {
   ServiceItem,
   IndustryItem,
-  ProjectItem,
-  WebsiteContent
+  PartnerCompanyItem,
+  WebsiteContent,
+  TestimonialItem
 } from '../types.js';
 import { api } from '../services/api.js';
 import {
   initialServices,
   initialIndustries,
-  initialProjects,
+  initialPartners,
   initialWebsiteContent
 } from '../data/initialData.js';
 
 interface DataContextType {
   services: ServiceItem[];
   industries: IndustryItem[];
-  projects: ProjectItem[];
+  partners: PartnerCompanyItem[];
+  testimonials: TestimonialItem[];
   content: WebsiteContent | null;
   isLoading: boolean;
   error: string | null;
@@ -33,7 +35,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Initialize with complete fallback data right away to prevent empty render states
   const [services, setServices] = useState<ServiceItem[]>(initialServices);
   const [industries, setIndustries] = useState<IndustryItem[]>(initialIndustries);
-  const [projects, setProjects] = useState<ProjectItem[]>(initialProjects);
+  const [partners, setPartners] = useState<PartnerCompanyItem[]>(initialPartners);
+  const [testimonials, setTestimonials] = useState<TestimonialItem[]>([]);
   const [content, setContent] = useState<WebsiteContent>(initialWebsiteContent);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,21 +50,21 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!isSilent) setIsLoading(true);
     setError(null);
     try {
-      const [srvs, inds, projs, cont] = await Promise.all([
+      const [srvs, inds, parts, tests, cont] = await Promise.all([
         api.getServices(),
         api.getIndustries(),
-        api.getProjects(),
+        api.getPartners(),
+        api.getTestimonials(),
         api.getContent()
       ]);
       if (srvs && srvs.length > 0) setServices(srvs);
       if (inds && inds.length > 0) setIndustries(inds);
-      if (projs && projs.length > 0) setProjects(projs);
+      if (parts && parts.length > 0) setPartners(parts);
+      if (tests && tests.length > 0) setTestimonials(tests);
       if (cont) setContent(cont);
       setError(null);
     } catch (err: any) {
       console.warn('Data sync warning:', err?.message || err);
-      // We already have initialServices/initialIndustries/etc loaded, so app remains fully functional.
-      // Attempt a silent retry after 3 seconds in case the server was rebooting
       if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
       retryTimerRef.current = setTimeout(() => {
         fetchData(true);
@@ -92,7 +95,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       value={{
         services,
         industries,
-        projects,
+        partners,
+        testimonials,
         content,
         isLoading,
         error,
