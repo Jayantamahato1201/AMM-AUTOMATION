@@ -114,35 +114,87 @@ export interface NewsletterSubscriberItem {
   unsubscribedAt?: string;
 }
 
+export interface MediaItem {
+  id: string;
+  fileName: string;
+  publicUrl: string;
+  storageIdentifier: string;
+  mimeType: string;
+  fileSize: number;
+  altText?: string;
+  relatedSection?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface WebsiteContent {
   companyName?: string;
   companyDescription?: string;
+  logo?: string;
+  companyLogo?: string;
+  favicon?: string;
   tagline?: string;
+  bannerNotice?: string;
+  footerDescription?: string;
+  copyrightText?: string;
+
+  // Hero Section
+  isHeroEnabled?: boolean;
+  heroBadge?: string;
   heroHeading?: string;
   heroSubheading?: string;
   heroDescription?: string;
+  heroPrimaryBtnText?: string;
+  heroPrimaryBtnLink?: string;
+  heroSecondaryBtnText?: string;
+  heroSecondaryBtnLink?: string;
+  heroImage?: string;
+  heroBgImage?: string;
+  heroImageAlt?: string;
+
+  // About Section
+  aboutTitle?: string;
+  aboutHeading?: string;
   aboutIntro?: string;
   aboutMission?: string;
   aboutVision?: string;
   aboutApproach?: string;
+  aboutImage?: string;
+  aboutImageSecondary?: string;
+  aboutImageAlt?: string;
+
+  // CTA Section
   ctaHeading?: string;
   ctaSubheading?: string;
+  ctaButtonText?: string;
+  ctaButtonLink?: string;
+  ctaImage?: string;
+
+  // Contact Info
+  email?: string;
   contactEmail?: string;
+  phone?: string;
   contactPhone?: string;
   alternatePhone?: string;
+  emergencyPhone?: string;
   whatsappNumber?: string;
   address?: string;
   workingHours?: string;
-  bannerNotice?: string;
+  googleMapsUrl?: string;
+
+  // Social Links
   socialLinks?: {
     linkedin?: string;
     twitter?: string;
     facebook?: string;
     youtube?: string;
+    instagram?: string;
   };
-  googleMapsUrl?: string;
+
+  // Meta & SEO
   metaTitle?: string;
   metaDescription?: string;
+  metaKeywords?: string;
 }
 
 export interface AdminUser {

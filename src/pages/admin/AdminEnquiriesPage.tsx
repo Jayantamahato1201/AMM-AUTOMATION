@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { EnquiryItem } from '../../types.js';
+import { ConfirmDialog } from '../../components/admin/ConfirmDialog.js';
 
 export const AdminEnquiriesPage: React.FC = () => {
   const [enquiries, setEnquiries] = useState<EnquiryItem[]>([]);
@@ -27,6 +28,8 @@ export const AdminEnquiriesPage: React.FC = () => {
   const [statusInput, setStatusInput] = useState<string>('New');
   const [isUpdating, setIsUpdating] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadEnquiries = async () => {
     try {
@@ -71,17 +74,28 @@ export const AdminEnquiriesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Delete enquiry submission from "${name}"?`)) return;
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
+    setIsDeleting(true);
 
     try {
       await api.deleteInquiry(id);
       if (selectedEnquiry?.id === id) {
         setSelectedEnquiry(null);
       }
-      loadEnquiries();
-    } catch (err) {
-      alert('Failed to delete enquiry');
+      setEnquiries(prev => prev.filter(e => e.id !== id));
+      setDeleteTarget(null);
+      await loadEnquiries();
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Failed to delete enquiry.' });
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -257,7 +271,7 @@ export const AdminEnquiriesPage: React.FC = () => {
                 </div>
 
                 <button
-                  onClick={() => handleDelete(selectedEnquiry.id, selectedEnquiry.name)}
+                  onClick={() => handleDeleteClick(selectedEnquiry.id, selectedEnquiry.name)}
                   className="p-1.5 text-slate-400 hover:text-red-600 rounded hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
                   title="Delete Record"
                 >
@@ -359,6 +373,20 @@ export const AdminEnquiriesPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Inbound Enquiry"
+        message={`Are you sure you want to permanently delete the inquiry record from "${deleteTarget?.name}"?`}
+        confirmLabel="Delete Enquiry"
+        cancelLabel="Cancel"
+        isLoading={isDeleting}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 };

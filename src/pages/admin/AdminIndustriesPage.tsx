@@ -15,6 +15,8 @@ import { useData } from '../../context/DataContext.js';
 import { api } from '../../services/api.js';
 import { IndustryItem } from '../../types.js';
 import { DynamicIcon } from '../../utils/iconHelper.js';
+import { ImageUploadField } from '../../components/admin/ImageUploadField.js';
+import { ConfirmDialog } from '../../components/admin/ConfirmDialog.js';
 
 export const AdminIndustriesPage: React.FC = () => {
   const { industries, refreshData } = useData();
@@ -23,6 +25,8 @@ export const AdminIndustriesPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [formData, setFormData] = useState<Partial<IndustryItem>>({
     name: '',
@@ -104,15 +108,26 @@ export const AdminIndustriesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete industry "${name}"?`)) return;
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id, name } = deleteTarget;
+    setIsDeleting(true);
+    setFeedback(null);
 
     try {
       await api.deleteIndustry(id);
       await refreshData();
-      setFeedback({ type: 'success', message: `Industry "${name}" deleted.` });
+      setFeedback({ type: 'success', message: `Industry "${name}" deleted successfully.` });
+      setDeleteTarget(null);
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to delete industry.' });
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -120,8 +135,9 @@ export const AdminIndustriesPage: React.FC = () => {
     try {
       await api.updateIndustry(industry.id, { isActive: !industry.isActive });
       await refreshData();
-    } catch (err) {
-      alert('Error toggling status');
+      setFeedback({ type: 'success', message: `Updated active status for "${industry.name}".` });
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err.message || 'Error updating status.' });
     }
   };
 
@@ -224,7 +240,7 @@ export const AdminIndustriesPage: React.FC = () => {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(ind.id, ind.name)}
+                      onClick={() => handleDeleteClick(ind.id, ind.name)}
                       className="p-1.5 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                       title="Delete Industry"
                     >
@@ -237,6 +253,20 @@ export const AdminIndustriesPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Industry Sector"
+        message={`Are you sure you want to delete "${deleteTarget?.name}"? All associated challenges and engineering solutions will be removed from public website.`}
+        confirmLabel="Delete Industry"
+        cancelLabel="Cancel"
+        isLoading={isDeleting}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+      />
 
       {/* Modal Form */}
       {isEditing && (
@@ -317,16 +347,13 @@ export const AdminIndustriesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Header Image Path / URL</label>
-                <input
-                  type="text"
-                  value={formData.image || ''}
-                  onChange={e => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="/images/metal_plant.jpg"
-                  className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
+              <ImageUploadField
+                label="Industry Feature Image / Manufacturing Plant Photo"
+                value={formData.image}
+                onChange={url => setFormData({ ...formData, image: url })}
+                sectionTag="industry"
+                helperText="Upload industrial sector photo or equipment diagram."
+              />
 
               <div>
                 <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Overview Description</label>

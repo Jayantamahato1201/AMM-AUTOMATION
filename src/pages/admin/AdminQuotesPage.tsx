@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { api } from '../../services/api.js';
 import { QuoteRequestItem } from '../../types.js';
+import { ConfirmDialog } from '../../components/admin/ConfirmDialog.js';
 
 export const AdminQuotesPage: React.FC = () => {
   const [quotes, setQuotes] = useState<QuoteRequestItem[]>([]);
@@ -21,6 +22,8 @@ export const AdminQuotesPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('All');
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const loadQuotes = async () => {
     setIsLoading(true);
@@ -50,18 +53,28 @@ export const AdminQuotesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete quote request from "${name}"?`)) {
-      return;
-    }
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id } = deleteTarget;
+    setIsDeleting(true);
+    setError(null);
 
     try {
       await api.deleteQuote(id);
+      setQuotes(prev => prev.filter(q => q.id !== id));
       setSuccessMsg('Quote request deleted successfully.');
+      setDeleteTarget(null);
       await loadQuotes();
       setTimeout(() => setSuccessMsg(null), 3000);
     } catch (err: any) {
       setError(err.message || 'Failed to delete quote request.');
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -187,7 +200,7 @@ export const AdminQuotesPage: React.FC = () => {
                     </select>
 
                     <button
-                      onClick={() => handleDelete(q.id, q.name)}
+                      onClick={() => handleDeleteClick(q.id, q.name)}
                       className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 rounded transition-colors cursor-pointer"
                       title="Delete RFQ"
                     >
@@ -236,6 +249,20 @@ export const AdminQuotesPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Quote Request"
+        message={`Are you sure you want to delete quote request from "${deleteTarget?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete Request"
+        cancelLabel="Cancel"
+        isLoading={isDeleting}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 };

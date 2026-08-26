@@ -4,6 +4,7 @@ dotenv.config();
 import express, { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import fs from 'fs';
+import cookieParser from 'cookie-parser';
 import jwt from 'jsonwebtoken';
 import { createServer as createViteServer } from 'vite';
 import { storage, seedMongoIfConnected } from './server/storage.js';
@@ -51,7 +52,7 @@ const serverStartTime = Date.now();
 // Enable trust proxy for reverse proxies (Cloud Run, Nginx, etc.)
 app.set('trust proxy', 1);
 
-// Ensure uploads folder exists and serve statically
+// Ensure uploads folder exists and serve statically as local cache
 const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) {
   fs.mkdirSync(UPLOADS_DIR, { recursive: true });
@@ -61,8 +62,9 @@ app.use('/uploads', express.static(UPLOADS_DIR));
 // 1. Security & Core Middlewares
 app.use(securityHeaders);
 app.use(getCorsMiddleware());
-app.use(express.json({ limit: '5mb' }));
-app.use(express.urlencoded({ extended: true, limit: '5mb' }));
+app.use(cookieParser());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(requestLogger);
 
 // 2. Auth Middleware
@@ -77,13 +79,20 @@ export interface AuthRequest extends Request {
 }
 
 export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction): void => {
+  let token: string | undefined;
+
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json({ error: 'Authentication required. Missing Bearer token.' });
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.split(' ')[1];
+  } else if (req.cookies && req.cookies.amm_admin_token) {
+    token = req.cookies.amm_admin_token;
+  }
+
+  if (!token) {
+    res.status(401).json({ error: 'Authentication required. Missing administrator credentials.' });
     return;
   }
 
-  const token = authHeader.split(' ')[1];
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as {
       id: string;
@@ -95,7 +104,7 @@ export const requireAdmin = (req: AuthRequest, res: Response, next: NextFunction
     next();
   } catch (err: any) {
     if (err.name === 'TokenExpiredError') {
-      res.status(401).json({ error: 'Session expired. Please log in again.' });
+      res.status(401).json({ error: 'Admin session expired. Please log in again.' });
       return;
     }
     res.status(401).json({ error: 'Invalid or revoked authentication token.' });
@@ -122,11 +131,11 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// 2. Authentication & Admin Authorization
+// 2. Authentication & Admin Authorization — STRICTLY ADMIN ONLY
 app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const parseResult = AdminLoginInputSchema.safeParse(req.body);
   if (!parseResult.success) {
-    res.status(400).json({ error: parseResult.error.issues[0]?.message || 'Invalid login details.' });
+    res.status(400).json({ error: 'Invalid email address or password format.' });
     return;
   }
 
@@ -134,11 +143,11 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const ip = req.ip || req.socket.remoteAddress || 'unknown-ip';
   const lockoutKey = `${ip}:${email.toLowerCase()}`;
 
-  // Check Brute Force lockout
+  // Check Brute Force lockout (5 failed attempts -> 15 min lock)
   const lockStatus = bruteForceGuard.isLocked(lockoutKey);
   if (lockStatus.locked) {
     res.status(429).json({
-      error: `Account temporarily locked due to repeated failed logins. Please retry in ${lockStatus.remainingSeconds} seconds.`
+      error: `Too many failed login attempts. Access is locked for ${lockStatus.remainingSeconds} seconds.`
     });
     return;
   }
@@ -146,7 +155,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
   const admin = await storage.getAdminByEmail(email);
   if (!admin) {
     bruteForceGuard.recordFailure(lockoutKey);
-    res.status(401).json({ error: 'Invalid email address or password.' });
+    res.status(401).json({ error: 'Invalid credentials.' });
     return;
   }
 
@@ -159,7 +168,7 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
       });
       return;
     }
-    res.status(401).json({ error: 'Invalid email address or password.' });
+    res.status(401).json({ error: 'Invalid credentials.' });
     return;
   }
 
@@ -180,6 +189,14 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
     { expiresIn: '7d' }
   );
 
+  // Set secure HttpOnly cookie for production session management
+  res.cookie('amm_admin_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  });
+
   res.json({
     token,
     refreshToken,
@@ -191,6 +208,15 @@ app.post('/api/auth/login', loginLimiter, async (req, res) => {
       role: admin.role
     }
   });
+});
+
+app.post('/api/auth/logout', (req, res) => {
+  res.clearCookie('amm_admin_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  });
+  res.json({ success: true, message: 'Logged out successfully.' });
 });
 
 app.post('/api/auth/refresh', async (req, res) => {
@@ -218,6 +244,13 @@ app.post('/api/auth/refresh', async (req, res) => {
       JWT_SECRET,
       { expiresIn: '2h' }
     );
+
+    res.cookie('amm_admin_token', newAccessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
 
     res.json({
       token: newAccessToken,
@@ -250,43 +283,130 @@ app.put('/api/auth/password', requireAdmin, async (req: AuthRequest, res) => {
     return;
   }
 
-  await storage.updateAdminPassword(admin.email, newPassword);
-  res.json({ message: 'Password updated successfully.' });
+  await storage.updateAdminPassword(req.user.email, newPassword);
+  res.json({ message: 'Administrator password updated successfully.' });
 });
 
-// 3. Partner Companies (CRUD & Public View)
-app.get('/api/partners', async (req, res) => {
-  const onlyActive = req.query.all !== 'true';
-  const partners = await storage.getPartners(onlyActive);
+// 3. Persistent Media / Image Uploads & Serving
+app.post(
+  ['/api/admin/media/upload', '/api/uploads'],
+  requireAdmin,
+  upload.single('image'),
+  async (req: AuthRequest, res) => {
+    // If field name was 'file' instead of 'image', multer might also catch it with fallback
+    const file = req.file;
+    if (!file) {
+      res.status(400).json({ error: 'No image file uploaded or unsupported file format. Allowed: JPG, JPEG, PNG, WEBP.' });
+      return;
+    }
+
+    const uniqueId = `img_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+    const diskFileName = `${uniqueId}${ext}`;
+
+    // Write to local disk cache for fast local serving
+    const diskFilePath = path.join(UPLOADS_DIR, diskFileName);
+    try {
+      if (file.buffer) {
+        fs.writeFileSync(diskFilePath, file.buffer);
+      }
+    } catch (err) {
+      console.warn('[AMM Server] Local disk cache write note:', err);
+    }
+
+    const publicUrl = `/api/media/${uniqueId}`;
+
+    // Save into MongoDB and in-memory dual-store
+    const saved = await storage.saveMedia({
+      id: uniqueId,
+      fileName: file.originalname,
+      publicUrl,
+      storageIdentifier: diskFileName,
+      mimeType: file.mimetype,
+      fileSize: file.size,
+      altText: typeof req.body.altText === 'string' ? req.body.altText : file.originalname,
+      relatedSection: typeof req.body.relatedSection === 'string' ? req.body.relatedSection : 'general',
+      buffer: file.buffer
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Image uploaded and persisted successfully.',
+      url: publicUrl,
+      id: uniqueId,
+      filename: file.originalname,
+      size: file.size,
+      mimetype: file.mimetype
+    });
+  }
+);
+
+// Stream media directly from MongoDB / memory / disk cache
+app.get('/api/media/:id', async (req, res) => {
+  const mediaId = req.params.id;
+  const media = await storage.getMediaById(mediaId);
+
+  if (media && media.data) {
+    res.setHeader('Content-Type', media.mimeType || 'image/jpeg');
+    res.setHeader('Content-Length', media.data.length);
+    res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    res.send(media.data);
+    return;
+  }
+
+  // Check if file exists on disk with that ID prefix
+  const diskCandidates = fs.existsSync(UPLOADS_DIR)
+    ? fs.readdirSync(UPLOADS_DIR).filter(f => f.startsWith(mediaId))
+    : [];
+
+  if (diskCandidates.length > 0) {
+    const filePath = path.join(UPLOADS_DIR, diskCandidates[0]);
+    res.sendFile(filePath);
+    return;
+  }
+
+  res.status(404).json({ error: 'Media file not found.' });
+});
+
+app.get('/api/admin/media', requireAdmin, async (req, res) => {
+  const mediaList = await storage.getAllMedia();
+  res.json(mediaList);
+});
+
+app.delete('/api/admin/media/:id', requireAdmin, async (req, res) => {
+  await storage.deleteMedia(req.params.id);
+  res.json({ success: true, message: 'Media item deleted successfully.' });
+});
+
+// 4. Partner Companies
+app.get(['/api/partners', '/api/admin/partners'], async (req, res) => {
+  const isAll = req.query.all === 'true' || req.path.startsWith('/api/admin');
+  const partners = await storage.getPartners(!isAll);
   res.json(partners);
 });
 
-app.get('/api/partners/:idOrSlug', async (req, res) => {
-  const { idOrSlug } = req.params;
-  let partner = await storage.getPartnerBySlug(idOrSlug);
+app.get('/api/partners/:slug', async (req, res) => {
+  const partner = await storage.getPartnerBySlug(req.params.slug);
   if (!partner) {
-    partner = await storage.getPartnerById(idOrSlug);
-  }
-  if (!partner) {
-    res.status(404).json({ error: 'Partner company not found.' });
+    res.status(404).json({ error: `Partner company '${req.params.slug}' not found.` });
     return;
   }
   res.json(partner);
 });
 
-app.post('/api/partners', requireAdmin, async (req, res) => {
+app.post(['/api/partners', '/api/admin/partners'], requireAdmin, async (req, res) => {
   const parsed = CreatePartnerCompanyInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid partner company payload.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid partner company data.' });
     return;
   }
 
   const data = parsed.data;
   const newPartner = await storage.createPartner({
     companyName: sanitizeString(data.companyName),
-    slug: data.slug ? sanitizeString(data.slug) : data.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-    websiteUrl: data.websiteUrl.trim(),
-    displayUrl: data.displayUrl ? sanitizeString(data.displayUrl) : data.websiteUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+    slug: sanitizeString(data.slug).toLowerCase(),
+    websiteUrl: data.websiteUrl,
+    displayUrl: data.displayUrl ? sanitizeString(data.displayUrl) : data.websiteUrl.replace(/^https?:\/\//, ''),
     category: sanitizeString(data.category),
     shortDescription: sanitizeString(data.shortDescription),
     fullDescription: data.fullDescription ? sanitizeString(data.fullDescription) : undefined,
@@ -300,10 +420,10 @@ app.post('/api/partners', requireAdmin, async (req, res) => {
   res.status(201).json(newPartner);
 });
 
-app.put('/api/partners/:id', requireAdmin, async (req, res) => {
+app.put(['/api/partners/:id', '/api/admin/partners/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdatePartnerCompanyInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid partner company update data.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid partner company update.' });
     return;
   }
 
@@ -315,67 +435,69 @@ app.put('/api/partners/:id', requireAdmin, async (req, res) => {
   res.json(updated);
 });
 
-app.delete('/api/partners/:id', requireAdmin, async (req, res) => {
+app.delete(['/api/partners/:id', '/api/admin/partners/:id'], requireAdmin, async (req, res) => {
   const success = await storage.deletePartner(req.params.id);
   if (!success) {
     res.status(404).json({ error: 'Partner company not found.' });
     return;
   }
-  res.json({ message: 'Partner company removed successfully.' });
+  res.json({ message: 'Partner company deleted successfully.' });
 });
 
-// 4. Services / Solutions
-app.get('/api/services', (req, res) => {
-  const onlyActive = req.query.all !== 'true';
-  const services = storage.getServices(onlyActive);
+// 5. Services & Solutions
+app.get(['/api/services', '/api/admin/services'], async (req, res) => {
+  const isAll = req.query.all === 'true' || req.path.startsWith('/api/admin');
+  const services = await storage.getServices(!isAll);
   res.json(services);
 });
 
-app.get('/api/services/:slug', (req, res) => {
-  const service = storage.getServiceBySlug(req.params.slug);
+app.get('/api/services/:slug', async (req, res) => {
+  const service = await storage.getServiceBySlug(req.params.slug);
   if (!service) {
-    res.status(404).json({ error: 'Engineering service solution not found.' });
+    res.status(404).json({ error: `Service '${req.params.slug}' not found.` });
     return;
   }
   res.json(service);
 });
 
-app.post('/api/services', requireAdmin, (req, res) => {
+app.post(['/api/services', '/api/admin/services'], requireAdmin, async (req, res) => {
   const parsed = CreateServiceInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid service payload.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid service data.' });
     return;
   }
 
   const data = parsed.data;
-  const newService = storage.createService({
+  const newService = await storage.createService({
     title: sanitizeString(data.title),
-    slug: sanitizeString(data.slug),
+    slug: sanitizeString(data.slug).toLowerCase(),
     shortDescription: sanitizeString(data.shortDescription),
-    fullDescription: sanitizeString(data.fullDescription || data.shortDescription),
+    fullDescription: data.fullDescription ? sanitizeString(data.fullDescription) : data.shortDescription,
     category: data.category ? sanitizeString(data.category) : 'Industrial Automation',
     image: data.image || '/images/hero_automation.jpg',
-    iconName: data.iconName || data.icon || 'Cpu',
+    iconName: data.iconName || 'Cpu',
     features: sanitizeArray(data.features),
     applications: sanitizeArray(data.applications),
     relatedIndustries: sanitizeArray(data.relatedIndustries),
     subOfferings: sanitizeArray(data.subOfferings),
     isActive: data.isActive ?? true,
-    order: data.order ?? data.displayOrder ?? 99,
-    displayOrder: data.displayOrder ?? data.order ?? 99
+    order: data.order ?? 99,
+    displayOrder: data.displayOrder ?? data.order ?? 99,
+    seoTitle: data.seoTitle ? sanitizeString(data.seoTitle) : undefined,
+    seoDescription: data.seoDescription ? sanitizeString(data.seoDescription) : undefined
   });
 
   res.status(201).json(newService);
 });
 
-app.put('/api/services/:id', requireAdmin, (req, res) => {
+app.put(['/api/services/:id', '/api/admin/services/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdateServiceInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid service update data.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid service update.' });
     return;
   }
 
-  const updated = storage.updateService(req.params.id, parsed.data);
+  const updated = await storage.updateService(req.params.id, parsed.data);
   if (!updated) {
     res.status(404).json({ error: 'Service not found.' });
     return;
@@ -383,8 +505,8 @@ app.put('/api/services/:id', requireAdmin, (req, res) => {
   res.json(updated);
 });
 
-app.delete('/api/services/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteService(req.params.id);
+app.delete(['/api/services/:id', '/api/admin/services/:id'], requireAdmin, async (req, res) => {
+  const success = await storage.deleteService(req.params.id);
   if (!success) {
     res.status(404).json({ error: 'Service not found.' });
     return;
@@ -392,56 +514,57 @@ app.delete('/api/services/:id', requireAdmin, (req, res) => {
   res.json({ message: 'Service deleted successfully.' });
 });
 
-// 5. Industries
-app.get('/api/industries', (req, res) => {
-  const onlyActive = req.query.all !== 'true';
-  const industries = storage.getIndustries(onlyActive);
+// 6. Industries
+app.get(['/api/industries', '/api/admin/industries'], async (req, res) => {
+  const isAll = req.query.all === 'true' || req.path.startsWith('/api/admin');
+  const industries = await storage.getIndustries(!isAll);
   res.json(industries);
 });
 
-app.get('/api/industries/:slug', (req, res) => {
-  const industry = storage.getIndustryBySlug(req.params.slug);
+app.get('/api/industries/:slug', async (req, res) => {
+  const industry = await storage.getIndustryBySlug(req.params.slug);
   if (!industry) {
-    res.status(404).json({ error: 'Industry domain profile not found.' });
+    res.status(404).json({ error: `Industry '${req.params.slug}' not found.` });
     return;
   }
   res.json(industry);
 });
 
-app.post('/api/industries', requireAdmin, (req, res) => {
+app.post(['/api/industries', '/api/admin/industries'], requireAdmin, async (req, res) => {
   const parsed = CreateIndustryInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid industry payload.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid industry data.' });
     return;
   }
 
   const data = parsed.data;
-  const newIndustry = storage.createIndustry({
-    name: sanitizeString(data.name || data.title || ''),
-    slug: sanitizeString(data.slug),
-    description: sanitizeString(data.description || data.fullDescription || ''),
+  const newIndustry = await storage.createIndustry({
+    name: sanitizeString(data.name),
+    slug: sanitizeString(data.slug).toLowerCase(),
+    description: sanitizeString(data.description),
     shortDescription: data.shortDescription ? sanitizeString(data.shortDescription) : undefined,
+    fullDescription: data.fullDescription ? sanitizeString(data.fullDescription) : undefined,
     image: data.image || '/images/metal_plant.jpg',
-    iconName: data.iconName || data.icon || 'Factory',
+    iconName: data.iconName || 'Factory',
     challenges: sanitizeArray(data.challenges),
     solutions: sanitizeArray(data.solutions),
     relatedServices: sanitizeArray(data.relatedServices),
     isActive: data.isActive ?? true,
-    order: data.order ?? data.displayOrder ?? 99,
+    order: data.order ?? 99,
     displayOrder: data.displayOrder ?? data.order ?? 99
   });
 
   res.status(201).json(newIndustry);
 });
 
-app.put('/api/industries/:id', requireAdmin, (req, res) => {
+app.put(['/api/industries/:id', '/api/admin/industries/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdateIndustryInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid industry update data.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid industry update.' });
     return;
   }
 
-  const updated = storage.updateIndustry(req.params.id, parsed.data);
+  const updated = await storage.updateIndustry(req.params.id, parsed.data);
   if (!updated) {
     res.status(404).json({ error: 'Industry not found.' });
     return;
@@ -449,8 +572,8 @@ app.put('/api/industries/:id', requireAdmin, (req, res) => {
   res.json(updated);
 });
 
-app.delete('/api/industries/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteIndustry(req.params.id);
+app.delete(['/api/industries/:id', '/api/admin/industries/:id'], requireAdmin, async (req, res) => {
+  const success = await storage.deleteIndustry(req.params.id);
   if (!success) {
     res.status(404).json({ error: 'Industry not found.' });
     return;
@@ -458,120 +581,78 @@ app.delete('/api/industries/:id', requireAdmin, (req, res) => {
   res.json({ message: 'Industry deleted successfully.' });
 });
 
-// 6. Contact Inquiries (Dual endpoints for /api/contact & /api/enquiries)
-const handleContactSubmission = async (req: Request, res: Response) => {
+// 7. Contact Inquiries & RFQs
+app.post(['/api/contact', '/api/enquiries', '/api/admin/inquiries', '/api/admin/enquiries'], enquiryLimiter, async (req, res) => {
   const parsed = CreateContactInquiryInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Please check your contact form inputs.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid contact submission.' });
     return;
   }
 
-  const { name, companyName, email, phone, subject, service, serviceInterest, message } = parsed.data;
-
-  const inquiry = storage.createInquiry({
-    name: sanitizeString(name),
-    companyName: companyName ? sanitizeString(companyName) : 'Not specified',
-    email: email.trim(),
-    phone: sanitizeString(phone),
-    subject: subject ? sanitizeString(subject) : 'Industrial Automation Enquiry',
-    service: service || serviceInterest ? sanitizeString(service || serviceInterest || '') : 'General Enquiry',
-    serviceInterest: serviceInterest || service ? sanitizeString(serviceInterest || service || '') : 'General Enquiry',
-    message: sanitizeString(message)
+  const data = parsed.data;
+  const newInquiry = await storage.createInquiry({
+    name: sanitizeString(data.name),
+    email: sanitizeString(data.email).toLowerCase(),
+    phone: sanitizeString(data.phone),
+    companyName: data.companyName ? sanitizeString(data.companyName) : undefined,
+    subject: data.subject ? sanitizeString(data.subject) : undefined,
+    serviceInterest: data.serviceInterest ? sanitizeString(data.serviceInterest) : undefined,
+    message: sanitizeString(data.message)
   });
 
-  console.log(`[Contact Inquiry] Logged inquiry ID: ${inquiry.id} for client: ${name} (${companyName || 'N/A'})`);
-
-  // Dispatch background email notification (Nodemailer)
-  sendContactNotificationEmail(inquiry).catch(err => console.error('[Mailer] Contact alert error:', err));
+  // Background email notification
+  sendContactNotificationEmail(newInquiry).catch(err => {
+    console.warn('[AMM Server] SMTP contact notification note:', err?.message || err);
+  });
 
   res.status(201).json({
-    message: 'Thank you! Your inquiry has been received. An AMM Automation technical specialist will contact you shortly.',
-    inquiryId: inquiry.id,
-    id: inquiry.id
+    message: 'Thank you. Your inquiry has been received by AMM Automation engineers.',
+    inquiryId: newInquiry.id
   });
-};
-
-app.post('/api/contact', enquiryLimiter, handleContactSubmission);
-app.post('/api/enquiries', enquiryLimiter, handleContactSubmission);
-
-app.get('/api/contact', requireAdmin, (req, res) => {
-  res.json(storage.getInquiries());
 });
-app.get('/api/enquiries', requireAdmin, (req, res) => {
+
+app.get(['/api/contact', '/api/enquiries', '/api/admin/inquiries', '/api/admin/enquiries'], requireAdmin, (req, res) => {
   res.json(storage.getInquiries());
 });
 
-app.get('/api/contact/:id', requireAdmin, (req, res) => {
-  const item = storage.getInquiryById(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Inquiry not found.' });
-  res.json(item);
-});
-app.get('/api/enquiries/:id', requireAdmin, (req, res) => {
-  const item = storage.getInquiryById(req.params.id);
-  if (!item) return res.status(404).json({ error: 'Inquiry not found.' });
-  res.json(item);
+app.get(['/api/contact/:id', '/api/enquiries/:id', '/api/admin/inquiries/:id', '/api/admin/enquiries/:id'], requireAdmin, (req, res) => {
+  const inq = storage.getInquiryById(req.params.id);
+  if (!inq) return res.status(404).json({ error: 'Inquiry not found.' });
+  res.json(inq);
 });
 
-app.put('/api/contact/:id', requireAdmin, (req, res) => {
+app.put(['/api/contact/:id', '/api/enquiries/:id', '/api/admin/inquiries/:id', '/api/admin/enquiries/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdateContactInquiryInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid inquiry update.' });
     return;
   }
 
-  const updated = storage.updateInquiry(req.params.id, parsed.data);
-  if (!updated) {
-    res.status(404).json({ error: 'Inquiry not found.' });
-    return;
-  }
-  res.json(updated);
-});
-app.put('/api/enquiries/:id', requireAdmin, (req, res) => {
-  const parsed = UpdateContactInquiryInputSchema.safeParse(req.body);
-  if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid enquiry update.' });
-    return;
-  }
-
-  const updated = storage.updateInquiry(req.params.id, parsed.data);
-  if (!updated) {
-    res.status(404).json({ error: 'Enquiry not found.' });
-    return;
-  }
+  const updated = await storage.updateInquiry(req.params.id, parsed.data);
+  if (!updated) return res.status(404).json({ error: 'Inquiry not found.' });
   res.json(updated);
 });
 
-app.delete('/api/contact/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteInquiry(req.params.id);
-  if (!success) {
-    res.status(404).json({ error: 'Inquiry not found.' });
-    return;
-  }
-  res.json({ message: 'Inquiry deleted successfully.' });
-});
-app.delete('/api/enquiries/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteInquiry(req.params.id);
-  if (!success) {
-    res.status(404).json({ error: 'Enquiry not found.' });
-    return;
-  }
-  res.json({ message: 'Enquiry deleted successfully.' });
+app.delete(['/api/contact/:id', '/api/enquiries/:id', '/api/admin/inquiries/:id', '/api/admin/enquiries/:id'], requireAdmin, async (req, res) => {
+  const success = await storage.deleteInquiry(req.params.id);
+  if (!success) return res.status(404).json({ error: 'Inquiry not found.' });
+  res.json({ success: true, message: 'Inquiry removed successfully.' });
 });
 
-// 7. Quote Requests (RFQs)
-app.post('/api/quotes', enquiryLimiter, async (req, res) => {
+// 8. Quote Requests
+app.post(['/api/quotes', '/api/admin/quotes'], enquiryLimiter, async (req, res) => {
   const parsed = CreateQuoteRequestInputSchema.safeParse(req.body);
   if (!parsed.success) {
-    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Please check your quote request inputs.' });
+    res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid quote request submission.' });
     return;
   }
 
   const data = parsed.data;
-  const quote = storage.createQuote({
+  const newQuote = await storage.createQuote({
     name: sanitizeString(data.name),
-    email: data.email.trim(),
+    email: sanitizeString(data.email).toLowerCase(),
     phone: sanitizeString(data.phone),
-    companyName: data.companyName ? sanitizeString(data.companyName) : 'Not specified',
+    companyName: data.companyName ? sanitizeString(data.companyName) : undefined,
     industry: data.industry ? sanitizeString(data.industry) : undefined,
     requiredService: sanitizeString(data.requiredService),
     projectDescription: sanitizeString(data.projectDescription),
@@ -579,53 +660,52 @@ app.post('/api/quotes', enquiryLimiter, async (req, res) => {
     preferredContactMethod: data.preferredContactMethod || 'email'
   });
 
-  console.log(`[Quote Request] Logged RFQ ID: ${quote.id} from: ${quote.name} (${quote.companyName})`);
-
-  // Dispatch background email notification (Nodemailer)
-  sendQuoteNotificationEmail(quote).catch(err => console.error('[Mailer] Quote alert error:', err));
+  // Background email notification
+  sendQuoteNotificationEmail(newQuote).catch(err => {
+    console.warn('[AMM Server] SMTP quote notification note:', err?.message || err);
+  });
 
   res.status(201).json({
-    message: 'Your Request for Quote (RFQ) has been logged. Our engineering estimation team will review your specifications and contact you.',
-    quoteId: quote.id,
-    id: quote.id
+    message: 'Your RFQ quotation request has been lodged with AMM technical estimations.',
+    quoteId: newQuote.id
   });
 });
 
-app.get('/api/quotes', requireAdmin, (req, res) => {
+app.get(['/api/quotes', '/api/admin/quotes'], requireAdmin, (req, res) => {
   res.json(storage.getQuotes());
 });
 
-app.get('/api/quotes/:id', requireAdmin, (req, res) => {
+app.get(['/api/quotes/:id', '/api/admin/quotes/:id'], requireAdmin, (req, res) => {
   const quote = storage.getQuoteById(req.params.id);
   if (!quote) return res.status(404).json({ error: 'Quote request not found.' });
   res.json(quote);
 });
 
-app.put('/api/quotes/:id', requireAdmin, (req, res) => {
+app.put(['/api/quotes/:id', '/api/admin/quotes/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdateQuoteRequestInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid quote request update.' });
     return;
   }
 
-  const updated = storage.updateQuote(req.params.id, parsed.data);
+  const updated = await storage.updateQuote(req.params.id, parsed.data);
   if (!updated) return res.status(404).json({ error: 'Quote request not found.' });
   res.json(updated);
 });
 
-app.delete('/api/quotes/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteQuote(req.params.id);
+app.delete(['/api/quotes/:id', '/api/admin/quotes/:id'], requireAdmin, async (req, res) => {
+  const success = await storage.deleteQuote(req.params.id);
   if (!success) return res.status(404).json({ error: 'Quote request not found.' });
-  res.json({ message: 'Quote request removed successfully.' });
+  res.json({ success: true, message: 'Quote request removed successfully.' });
 });
 
-// 8. Testimonials
-app.get('/api/testimonials', (req, res) => {
-  const onlyActive = req.query.all !== 'true';
+// 9. Testimonials
+app.get(['/api/testimonials', '/api/admin/testimonials'], (req, res) => {
+  const onlyActive = req.query.all !== 'true' && !req.path.startsWith('/api/admin');
   res.json(storage.getTestimonials(onlyActive));
 });
 
-app.post('/api/testimonials', requireAdmin, (req, res) => {
+app.post(['/api/testimonials', '/api/admin/testimonials'], requireAdmin, async (req, res) => {
   const parsed = CreateTestimonialInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid testimonial payload.' });
@@ -633,7 +713,7 @@ app.post('/api/testimonials', requireAdmin, (req, res) => {
   }
 
   const data = parsed.data;
-  const newTestimonial = storage.createTestimonial({
+  const newTestimonial = await storage.createTestimonial({
     clientName: sanitizeString(data.clientName),
     company: sanitizeString(data.company),
     designation: data.designation ? sanitizeString(data.designation) : undefined,
@@ -647,25 +727,25 @@ app.post('/api/testimonials', requireAdmin, (req, res) => {
   res.status(201).json(newTestimonial);
 });
 
-app.put('/api/testimonials/:id', requireAdmin, (req, res) => {
+app.put(['/api/testimonials/:id', '/api/admin/testimonials/:id'], requireAdmin, async (req, res) => {
   const parsed = UpdateTestimonialInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid testimonial update.' });
     return;
   }
 
-  const updated = storage.updateTestimonial(req.params.id, parsed.data);
+  const updated = await storage.updateTestimonial(req.params.id, parsed.data);
   if (!updated) return res.status(404).json({ error: 'Testimonial not found.' });
   res.json(updated);
 });
 
-app.delete('/api/testimonials/:id', requireAdmin, (req, res) => {
-  const success = storage.deleteTestimonial(req.params.id);
+app.delete(['/api/testimonials/:id', '/api/admin/testimonials/:id'], requireAdmin, async (req, res) => {
+  const success = await storage.deleteTestimonial(req.params.id);
   if (!success) return res.status(404).json({ error: 'Testimonial not found.' });
-  res.json({ message: 'Testimonial deleted successfully.' });
+  res.json({ success: true, message: 'Testimonial deleted successfully.' });
 });
 
-// 9. Newsletter Subscription
+// 10. Newsletter Subscription
 app.post('/api/newsletter/subscribe', (req, res) => {
   const parsed = CreateNewsletterSubscriberInputSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -692,32 +772,12 @@ app.get('/api/newsletter/subscribers', requireAdmin, (req, res) => {
   res.json(storage.getNewsletterSubscribers());
 });
 
-// 10. File & Image Uploads (Multer)
-app.post('/api/uploads', requireAdmin, upload.single('image'), (req: AuthRequest, res) => {
-  if (!req.file) {
-    res.status(400).json({ error: 'No image file uploaded or invalid file format.' });
-    return;
-  }
-
-  const relativeUrl = `/uploads/${req.file.filename}`;
-  res.status(201).json({
-    message: 'Image uploaded successfully.',
-    url: relativeUrl,
-    filename: req.file.filename,
-    size: req.file.size,
-    mimetype: req.file.mimetype
-  });
-});
-
-// 11. Website Copywriting, Settings & Company Profile
-app.get('/api/settings', (req, res) => {
-  res.json(storage.getContent());
-});
-app.get('/api/content', (req, res) => {
+// 11. Website Copywriting, Settings & CMS Control
+app.get(['/api/settings', '/api/content', '/api/admin/site-settings'], (req, res) => {
   res.json(storage.getContent());
 });
 
-app.put('/api/settings', requireAdmin, (req, res) => {
+app.put(['/api/settings', '/api/content', '/api/admin/site-settings'], requireAdmin, (req, res) => {
   const parsed = UpdateSiteSettingsInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid settings payload.' });
@@ -727,19 +787,24 @@ app.put('/api/settings', requireAdmin, (req, res) => {
   const updated = storage.updateContent(parsed.data);
   res.json(updated);
 });
-app.put('/api/content', requireAdmin, (req, res) => {
+
+app.get('/api/admin/content/:page', (req, res) => {
+  const allContent = storage.getContent();
+  res.json(allContent);
+});
+
+app.put('/api/admin/content/:page', requireAdmin, (req, res) => {
   const parsed = UpdateSiteSettingsInputSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.issues[0]?.message || 'Invalid content payload.' });
     return;
   }
-
   const updated = storage.updateContent(parsed.data);
   res.json(updated);
 });
 
 // 12. Overview Stats
-app.get('/api/stats', (req, res) => {
+app.get(['/api/stats', '/api/admin/stats'], (req, res) => {
   const stats = storage.getStats();
   res.json(stats);
 });

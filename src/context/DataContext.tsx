@@ -57,11 +57,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         api.getTestimonials(),
         api.getContent()
       ]);
-      if (srvs && srvs.length > 0) setServices(srvs);
-      if (inds && inds.length > 0) setIndustries(inds);
-      if (parts && parts.length > 0) setPartners(parts);
-      if (tests && tests.length > 0) setTestimonials(tests);
-      if (cont) setContent(cont);
+      if (Array.isArray(srvs)) setServices(srvs);
+      if (Array.isArray(inds)) setIndustries(inds);
+      if (Array.isArray(parts)) setPartners(parts);
+      if (Array.isArray(tests)) setTestimonials(tests);
+      if (cont && typeof cont === 'object') setContent(cont);
       setError(null);
     } catch (err: any) {
       console.warn('Data sync warning:', err?.message || err);

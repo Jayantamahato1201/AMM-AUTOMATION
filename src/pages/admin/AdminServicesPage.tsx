@@ -16,6 +16,8 @@ import { useData } from '../../context/DataContext.js';
 import { api } from '../../services/api.js';
 import { ServiceItem } from '../../types.js';
 import { DynamicIcon } from '../../utils/iconHelper.js';
+import { ImageUploadField } from '../../components/admin/ImageUploadField.js';
+import { ConfirmDialog } from '../../components/admin/ConfirmDialog.js';
 
 export const AdminServicesPage: React.FC = () => {
   const { services, refreshData } = useData();
@@ -24,6 +26,8 @@ export const AdminServicesPage: React.FC = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; title: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form state
   const [formData, setFormData] = useState<Partial<ServiceItem>>({
@@ -113,15 +117,26 @@ export const AdminServicesPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete service "${title}"?`)) return;
+  const handleDeleteClick = (id: string, title: string) => {
+    setDeleteTarget({ id, title });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id, title } = deleteTarget;
+    setIsDeleting(true);
+    setFeedback(null);
 
     try {
       await api.deleteService(id);
       await refreshData();
-      setFeedback({ type: 'success', message: `Service "${title}" deleted.` });
+      setFeedback({ type: 'success', message: `Service "${title}" deleted successfully.` });
+      setDeleteTarget(null);
     } catch (err: any) {
       setFeedback({ type: 'error', message: err.message || 'Failed to delete service.' });
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -129,8 +144,9 @@ export const AdminServicesPage: React.FC = () => {
     try {
       await api.updateService(service.id, { isActive: !service.isActive });
       await refreshData();
+      setFeedback({ type: 'success', message: `Updated active status for "${service.title}".` });
     } catch (err: any) {
-      alert('Error updating status');
+      setFeedback({ type: 'error', message: err.message || 'Error updating status.' });
     }
   };
 
@@ -233,7 +249,7 @@ export const AdminServicesPage: React.FC = () => {
                       <Edit2 className="w-4 h-4" />
                     </button>
                     <button
-                      onClick={() => handleDelete(srv.id, srv.title)}
+                      onClick={() => handleDeleteClick(srv.id, srv.title)}
                       className="p-1.5 rounded text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                       title="Delete Service"
                     >
@@ -246,6 +262,20 @@ export const AdminServicesPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Service Offering"
+        message={`Are you sure you want to permanently delete "${deleteTarget?.title}"? All associated sub-offerings and applications will be removed from public catalog.`}
+        confirmLabel="Delete Service"
+        cancelLabel="Cancel"
+        isLoading={isDeleting}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+      />
 
       {/* Create / Edit Modal */}
       {isEditing && (
@@ -326,16 +356,13 @@ export const AdminServicesPage: React.FC = () => {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Banner Image Path / URL</label>
-                <input
-                  type="text"
-                  value={formData.image || ''}
-                  onChange={e => setFormData({ ...formData, image: e.target.value })}
-                  placeholder="/images/hero_automation.jpg"
-                  className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded px-3 py-2 text-slate-900 dark:text-white focus:outline-none focus:border-orange-500"
-                />
-              </div>
+              <ImageUploadField
+                label="Solution Banner / Industrial Photo"
+                value={formData.image}
+                onChange={url => setFormData({ ...formData, image: url })}
+                sectionTag="service"
+                helperText="Upload industrial photo, panel diagram, or service banner."
+              />
 
               <div>
                 <label className="block font-semibold text-slate-700 dark:text-slate-300 mb-1">Short Description (Card preview)</label>

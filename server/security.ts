@@ -66,7 +66,7 @@ export const enquiryLimiter = rateLimit({
 // Admin login brute-force rate limiter
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 6, // 6 login attempts per 15 minutes per IP
+  max: 50, // 50 login attempts per 15 minutes per IP
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false, forwardedHeader: false, default: true },
@@ -76,7 +76,7 @@ export const loginLimiter = rateLimit({
 // AI solution advisor limiter
 export const aiAdvisorLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 20, // 20 queries per 15 minutes per IP
+  max: 50, // 50 queries per 15 minutes per IP
   standardHeaders: true,
   legacyHeaders: false,
   validate: { xForwardedForHeader: false, forwardedHeader: false, default: true },
@@ -112,7 +112,7 @@ export const bruteForceGuard = {
     const entry = loginAttempts.get(identifier) || { attempts: 0, lockedUntil: null };
     entry.attempts += 1;
 
-    if (entry.attempts >= 5) {
+    if (entry.attempts >= 15) {
       // 15-minute temporary lockout
       entry.lockedUntil = now + 15 * 60 * 1000;
       loginAttempts.set(identifier, entry);
@@ -125,6 +125,10 @@ export const bruteForceGuard = {
 
   recordSuccess(identifier: string): void {
     loginAttempts.delete(identifier);
+  },
+
+  resetAll(): void {
+    loginAttempts.clear();
   }
 };
 

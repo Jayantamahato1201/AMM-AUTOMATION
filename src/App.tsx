@@ -29,6 +29,7 @@ import { AdminIndustriesPage } from './pages/admin/AdminIndustriesPage.js';
 import { AdminQuotesPage } from './pages/admin/AdminQuotesPage.js';
 import { AdminEnquiriesPage } from './pages/admin/AdminEnquiriesPage.js';
 import { AdminContentPage } from './pages/admin/AdminContentPage.js';
+import { AdminMediaPage } from './pages/admin/AdminMediaPage.js';
 
 // Public Website Layout Wrapper
 const PublicLayout: React.FC = () => {
@@ -108,6 +109,7 @@ export function App() {
                 <Route path="quotes" element={<AdminQuotesPage />} />
                 <Route path="enquiries" element={<AdminEnquiriesPage />} />
                 <Route path="content" element={<AdminContentPage />} />
+                <Route path="media" element={<AdminMediaPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

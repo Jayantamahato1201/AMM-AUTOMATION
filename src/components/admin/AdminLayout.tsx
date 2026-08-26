@@ -12,7 +12,8 @@ import {
   ExternalLink,
   Menu,
   X,
-  ShieldCheck
+  ShieldCheck,
+  Image as ImageIcon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import { useData } from '../../context/DataContext.js';
@@ -53,7 +54,8 @@ export const AdminLayout: React.FC = () => {
     { name: 'Industries Management', path: '/admin/industries', icon: Factory },
     { name: 'Quote Requests (RFQs)', path: '/admin/quotes', icon: FileSpreadsheet },
     { name: 'Contact Inquiries', path: '/admin/enquiries', icon: Inbox },
-    { name: 'Website Content', path: '/admin/content', icon: FileText }
+    { name: 'Website Content', path: '/admin/content', icon: FileText },
+    { name: 'Media Storage', path: '/admin/media', icon: ImageIcon }
   ];
 
   return (

@@ -253,9 +253,14 @@ export const CreateNewsletterSubscriberInputSchema = z.object({
 export const SiteSettingsSchema = z.object({
   companyName: z.string().max(200).optional(),
   logo: z.string().max(1000).optional(),
-  email: z.string().email().optional(),
+  companyLogo: z.string().max(1000).optional(),
+  favicon: z.string().max(1000).optional(),
+  email: z.string().optional(),
+  contactEmail: z.string().optional(),
   phone: z.string().max(50).optional(),
+  contactPhone: z.string().max(50).optional(),
   alternatePhone: z.string().max(50).optional(),
+  emergencyPhone: z.string().max(50).optional(),
   address: z.string().max(500).optional(),
   workingHours: z.string().max(300).optional(),
   whatsappNumber: z.string().max(50).optional(),
@@ -263,19 +268,49 @@ export const SiteSettingsSchema = z.object({
     linkedin: z.string().optional(),
     twitter: z.string().optional(),
     facebook: z.string().optional(),
-    youtube: z.string().optional()
+    youtube: z.string().optional(),
+    instagram: z.string().optional()
   }).optional(),
   googleMapsUrl: z.string().optional(),
   metaTitle: z.string().max(300).optional(),
   metaDescription: z.string().max(500).optional(),
+  metaKeywords: z.string().max(500).optional(),
   tagline: z.string().max(300).optional(),
+  bannerNotice: z.string().max(500).optional(),
+  footerDescription: z.string().max(2000).optional(),
+  copyrightText: z.string().max(300).optional(),
+
+  // Hero section
+  isHeroEnabled: z.boolean().optional().default(true),
+  heroBadge: z.string().max(300).optional(),
   heroHeading: z.string().max(300).optional(),
   heroSubheading: z.string().max(500).optional(),
   heroDescription: z.string().max(5000).optional(),
+  heroPrimaryBtnText: z.string().max(100).optional(),
+  heroPrimaryBtnLink: z.string().max(300).optional(),
+  heroSecondaryBtnText: z.string().max(100).optional(),
+  heroSecondaryBtnLink: z.string().max(300).optional(),
+  heroImage: z.string().max(1000).optional(),
+  heroBgImage: z.string().max(1000).optional(),
+  heroImageAlt: z.string().max(500).optional(),
+
+  // About section
+  aboutTitle: z.string().max(200).optional(),
+  aboutHeading: z.string().max(300).optional(),
   aboutIntro: z.string().max(5000).optional(),
   aboutMission: z.string().max(5000).optional(),
   aboutVision: z.string().max(5000).optional(),
-  bannerNotice: z.string().max(500).optional()
+  aboutApproach: z.string().max(5000).optional(),
+  aboutImage: z.string().max(1000).optional(),
+  aboutImageSecondary: z.string().max(1000).optional(),
+  aboutImageAlt: z.string().max(500).optional(),
+
+  // CTA section
+  ctaHeading: z.string().max(300).optional(),
+  ctaSubheading: z.string().max(500).optional(),
+  ctaButtonText: z.string().max(100).optional(),
+  ctaButtonLink: z.string().max(300).optional(),
+  ctaImage: z.string().max(1000).optional()
 });
 
 export const UpdateSiteSettingsInputSchema = SiteSettingsSchema.partial();
@@ -318,5 +353,6 @@ export const DatabaseSchemaObject = z.object({
   enquiries: z.array(ContactInquirySchema).default([]),
   quotes: z.array(QuoteRequestSchema).default([]),
   testimonials: z.array(TestimonialSchema).default([]),
-  newsletterSubscribers: z.array(NewsletterSubscriberSchema).default([])
+  newsletterSubscribers: z.array(NewsletterSubscriberSchema).default([]),
+  media: z.array(z.any()).optional().default([])
 });

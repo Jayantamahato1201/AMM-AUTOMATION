@@ -16,12 +16,16 @@ import {
 import { api } from '../../services/api.js';
 import { PartnerCompanyItem } from '../../types.js';
 import { useData } from '../../context/DataContext.js';
+import { ImageUploadField } from '../../components/admin/ImageUploadField.js';
+import { ConfirmDialog } from '../../components/admin/ConfirmDialog.js';
 
 export const AdminPartnersPage: React.FC = () => {
   const [partners, setPartners] = useState<PartnerCompanyItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Form State
   const [isEditing, setIsEditing] = useState(false);
@@ -36,6 +40,7 @@ export const AdminPartnersPage: React.FC = () => {
     fullDescription: string;
     tags: string;
     establishedRole: string;
+    logo: string;
     isActive: boolean;
     displayOrder: number;
   }>({
@@ -48,6 +53,7 @@ export const AdminPartnersPage: React.FC = () => {
     fullDescription: '',
     tags: 'Modern Web Solutions, Software Development, Digital Transformation',
     establishedRole: 'Digital & Software Solutions Partner',
+    logo: '',
     isActive: true,
     displayOrder: 1
   });
@@ -82,6 +88,7 @@ export const AdminPartnersPage: React.FC = () => {
       fullDescription: '',
       tags: 'Modern Web Solutions, Software Development, Digital Transformation',
       establishedRole: 'Digital & Software Solutions Partner',
+      logo: '',
       isActive: true,
       displayOrder: partners.length + 1
     });
@@ -100,6 +107,7 @@ export const AdminPartnersPage: React.FC = () => {
       fullDescription: partner.fullDescription || '',
       tags: (partner.tags || []).join(', '),
       establishedRole: partner.establishedRole || '',
+      logo: partner.logo || '',
       isActive: partner.isActive !== false,
       displayOrder: partner.displayOrder || 1
     });
@@ -108,19 +116,30 @@ export const AdminPartnersPage: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to delete partner company "${name}"?`)) {
-      return;
-    }
+  const handleDeleteClick = (id: string, name: string) => {
+    setDeleteTarget({ id, name });
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
+    const { id, name } = deleteTarget;
+    setIsDeleting(true);
+    setError(null);
 
     try {
       await api.deletePartner(id);
+      // Immediately remove from local component state
+      setPartners(prev => prev.filter(p => p.id !== id && p.slug !== id));
       setSuccessMsg(`Partner company "${name}" deleted successfully.`);
+      setDeleteTarget(null);
       await loadPartners();
       await refreshData();
       setTimeout(() => setSuccessMsg(null), 4000);
     } catch (err: any) {
       setError(err.message || 'Failed to delete partner.');
+      setDeleteTarget(null);
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -144,6 +163,7 @@ export const AdminPartnersPage: React.FC = () => {
       fullDescription: formData.fullDescription.trim() || undefined,
       tags: tagsArray,
       establishedRole: formData.establishedRole.trim() || undefined,
+      logo: formData.logo.trim() || undefined,
       isActive: formData.isActive,
       displayOrder: Number(formData.displayOrder) || 1
     };
@@ -308,6 +328,14 @@ export const AdminPartnersPage: React.FC = () => {
               </div>
             </div>
 
+            <ImageUploadField
+              label="Partner Company Logo / Brand Emblem"
+              value={formData.logo}
+              onChange={url => setFormData({ ...formData, logo: url })}
+              sectionTag="partner"
+              helperText="Upload transparent PNG, SVG, or high-res company logo."
+            />
+
             <div>
               <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                 Short Overview / Mission Description <span className="text-red-500">*</span>
@@ -440,7 +468,7 @@ export const AdminPartnersPage: React.FC = () => {
                     <Edit2 className="w-4 h-4" />
                   </button>
                   <button
-                    onClick={() => handleDelete(partner.id, partner.companyName)}
+                    onClick={() => handleDeleteClick(partner.id, partner.companyName)}
                     className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded border border-slate-200 dark:border-slate-700 transition-colors cursor-pointer"
                     title="Delete Partner"
                   >
@@ -452,6 +480,20 @@ export const AdminPartnersPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={Boolean(deleteTarget)}
+        title="Delete Partner Company"
+        message={`Are you sure you want to delete "${deleteTarget?.name}" from partner companies? This will remove the listing from both the admin management system and the public website.`}
+        confirmLabel="Delete Partner"
+        cancelLabel="Keep Partner"
+        isLoading={isDeleting}
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => {
+          if (!isDeleting) setDeleteTarget(null);
+        }}
+      />
     </div>
   );
 };

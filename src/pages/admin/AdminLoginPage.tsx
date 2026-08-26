@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Lock, Mail, ArrowRight, AlertCircle, ArrowLeft, Eye, EyeOff, KeyRound } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext.js';
 import { api } from '../../services/api.js';
 import { BrandLogo } from '../../components/common/BrandLogo.js';
@@ -11,6 +11,7 @@ export const AdminLoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('admin@ammautomation.com');
   const [password, setPassword] = useState('Admin@12345');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -21,13 +22,22 @@ export const AdminLoginPage: React.FC = () => {
     }
   }, [user, navigate]);
 
+  const handleFillCredentials = () => {
+    setEmail('admin@ammautomation.com');
+    setPassword('Admin@12345');
+    setErrorMessage(null);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setErrorMessage(null);
 
+    const cleanEmail = email.trim();
+    const cleanPassword = password;
+
     try {
-      const data = await api.login(email, password);
+      const data = await api.login(cleanEmail, cleanPassword);
       login(data.token, data.user);
       navigate('/admin/dashboard');
     } catch (err: any) {
@@ -54,14 +64,25 @@ export const AdminLoginPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Credentials Notice Box */}
-        <div className="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 p-3 rounded text-xs space-y-1">
+        {/* Credentials Notice Box with One-Click Fill */}
+        <div className="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/80 p-3.5 rounded text-xs space-y-2">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="font-semibold text-slate-700 dark:text-slate-300">Default Staff Credentials:</span>
-            <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold">Pre-Configured</span>
+            <span className="font-semibold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <KeyRound className="w-3.5 h-3.5 text-[#F27D26]" />
+              <span>Standard Staff Credentials</span>
+            </span>
+            <button
+              type="button"
+              onClick={handleFillCredentials}
+              className="text-[10px] text-orange-600 dark:text-[#F27D26] font-semibold hover:underline cursor-pointer"
+            >
+              Auto-Fill
+            </button>
           </div>
-          <p className="text-slate-600 dark:text-slate-400 font-mono text-[11px]">Email: admin@ammautomation.com</p>
-          <p className="text-slate-600 dark:text-slate-400 font-mono text-[11px]">Password: Admin@12345</p>
+          <div className="font-mono text-[11px] space-y-0.5 text-slate-600 dark:text-slate-400 bg-white/60 dark:bg-black/20 p-2 rounded border border-slate-100 dark:border-slate-800">
+            <p className="flex justify-between"><span>Email:</span> <span className="font-bold text-slate-800 dark:text-slate-200 select-all">admin@ammautomation.com</span></p>
+            <p className="flex justify-between"><span>Password:</span> <span className="font-bold text-slate-800 dark:text-slate-200 select-all">Admin@12345</span></p>
+          </div>
         </div>
 
         {errorMessage && (
@@ -97,20 +118,28 @@ export const AdminLoginPage: React.FC = () => {
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded pl-9 pr-3 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-orange-500"
+                className="w-full bg-slate-50 dark:bg-[#071324] border border-slate-300 dark:border-slate-700 rounded pl-9 pr-10 py-2 text-sm text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:border-orange-500"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-50 text-white font-semibold text-sm py-2.5 rounded shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full bg-[#F27D26] hover:bg-[#d96a1a] disabled:opacity-50 text-white font-semibold text-sm py-2.5 rounded shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
             {isLoading ? <span>Authenticating...</span> : (
               <>

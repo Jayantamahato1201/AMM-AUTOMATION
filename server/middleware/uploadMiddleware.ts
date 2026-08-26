@@ -7,17 +7,8 @@ if (!fs.existsSync(UPLOAD_DIR)) {
   fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 }
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (req, file, cb) => {
-    const ext = path.extname(file.originalname).toLowerCase();
-    const sanitizedBase = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9_-]/g, '_');
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e6)}`;
-    cb(null, `${sanitizedBase}-${uniqueSuffix}${ext}`);
-  }
-});
+// Memory storage allows us to directly write to MongoDB & disk simultaneously
+const storage = multer.memoryStorage();
 
 const allowedMimeTypes = [
   'image/jpeg',
@@ -39,7 +30,7 @@ export const upload = multer({
     if (allowedMimeTypes.includes(file.mimetype.toLowerCase())) {
       cb(null, true);
     } else {
-      cb(new Error('Invalid file format. Only JPEG, PNG, WEBP, SVG, and GIF images are allowed.'));
+      cb(new Error('Invalid file format. Only JPG, JPEG, PNG, and WEBP images are accepted.'));
     }
   }
 });

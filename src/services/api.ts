@@ -190,6 +190,10 @@ export const api = {
       const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete partner company.').catch(() => ({ error: 'Failed to delete partner company.' }));
       throw new Error(err.error || 'Failed to delete partner company.');
     }
+    const cached = getLocalItem<PartnerCompanyItem[]>('amm_partners_cache', []);
+    if (Array.isArray(cached)) {
+      setLocalItem('amm_partners_cache', cached.filter(p => p.id !== id && p.slug !== id));
+    }
   },
 
   // --- Services / Solutions ---
@@ -252,6 +256,10 @@ export const api = {
       const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete service.').catch(() => ({ error: 'Failed to delete service.' }));
       throw new Error(err.error || 'Failed to delete service.');
     }
+    const cached = getLocalItem<ServiceItem[]>('amm_services_cache', []);
+    if (Array.isArray(cached)) {
+      setLocalItem('amm_services_cache', cached.filter(s => s.id !== id && s.slug !== id));
+    }
   },
 
   // --- Industries ---
@@ -313,6 +321,10 @@ export const api = {
     if (!res.ok) {
       const err = await parseJsonSafely<{ error?: string }>(res, 'Failed to delete industry.').catch(() => ({ error: 'Failed to delete industry.' }));
       throw new Error(err.error || 'Failed to delete industry.');
+    }
+    const cached = getLocalItem<IndustryItem[]>('amm_industries_cache', []);
+    if (Array.isArray(cached)) {
+      setLocalItem('amm_industries_cache', cached.filter(i => i.id !== id && i.slug !== id));
     }
   },
 
@@ -515,6 +527,37 @@ export const api = {
     });
 
     return parseJsonSafely<{ url: string; filename: string }>(res, 'Image upload failed.');
+  },
+
+  async uploadMedia(file: File, relatedSection?: string, altText?: string): Promise<{ url: string; id: string; fileName: string; fileSize: number }> {
+    const formData = new FormData();
+    formData.append('image', file);
+    if (relatedSection) formData.append('relatedSection', relatedSection);
+    if (altText) formData.append('altText', altText);
+
+    const token = localStorage.getItem('amm_admin_token');
+    const res = await fetch(`${API_BASE}/admin/media/upload`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: formData
+    });
+
+    return parseJsonSafely<{ url: string; id: string; fileName: string; fileSize: number }>(res, 'Media upload failed.');
+  },
+
+  async getMediaList(): Promise<Array<{ id: string; fileName: string; publicUrl: string; fileSize: number; mimeType: string; altText?: string; relatedSection?: string; createdAt: string }>> {
+    const res = await fetch(`${API_BASE}/admin/media`, {
+      headers: getAuthHeaders()
+    });
+    return parseJsonSafely(res, 'Failed to fetch media library.');
+  },
+
+  async deleteMedia(id: string): Promise<void> {
+    const res = await fetch(`${API_BASE}/admin/media/${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!res.ok) throw new Error('Failed to delete media asset.');
   },
 
   // --- Website Content & Settings ---
