@@ -92,12 +92,14 @@ export function App() {
                 <Route path="/portfolio/*" element={<Navigate to="/" replace />} />
                 <Route path="/projects" element={<Navigate to="/" replace />} />
                 <Route path="/projects/*" element={<Navigate to="/" replace />} />
-
-                <Route path="*" element={<NotFoundPage />} />
               </Route>
 
-              {/* Standalone Admin Login */}
+              {/* Standalone Admin Login & Direct Aliases */}
               <Route path="/admin/login" element={<AdminLoginPage />} />
+              <Route path="/login" element={<Navigate to="/admin/login" replace />} />
+              <Route path="/signin" element={<Navigate to="/admin/login" replace />} />
+              <Route path="/admin-login" element={<Navigate to="/admin/login" replace />} />
+              <Route path="/auth/login" element={<Navigate to="/admin/login" replace />} />
 
               {/* Protected Admin Control Center */}
               <Route path="/admin" element={<AdminLayout />}>
@@ -110,6 +112,11 @@ export function App() {
                 <Route path="enquiries" element={<AdminEnquiriesPage />} />
                 <Route path="content" element={<AdminContentPage />} />
                 <Route path="media" element={<AdminMediaPage />} />
+              </Route>
+
+              {/* Global 404 Catch-All */}
+              <Route element={<PublicLayout />}>
+                <Route path="*" element={<NotFoundPage />} />
               </Route>
             </Routes>
           </BrowserRouter>

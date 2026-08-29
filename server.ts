@@ -890,4 +890,11 @@ async function handleShutdown(signal: string) {
 process.on('SIGTERM', () => handleShutdown('SIGTERM'));
 process.on('SIGINT', () => handleShutdown('SIGINT'));
 
-start();
+// Export Express app for Vercel serverless function or external integration
+export { app };
+export default app;
+
+if (!process.env.VERCEL) {
+  start();
+}
+
